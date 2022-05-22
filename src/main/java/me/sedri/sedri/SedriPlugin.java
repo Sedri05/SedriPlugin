@@ -22,7 +22,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.util.*;
 
 
@@ -127,11 +126,14 @@ public final class SedriPlugin extends JavaPlugin{
         int i = 10;
         for (String key: keys){
             ConfigurationSection slayer = SlayerConfig.get().getConfigurationSection(key);
+            if (slayer == null){
+                continue;
+            }
             Material mat = Material.ZOMBIE_HEAD;
-            try {
-                String mate = slayer.getString("material");
+            String mate = slayer.getString("material");
+            if (mate != null) {
                 mat = Material.valueOf(mate.toUpperCase());
-            } catch (IllegalArgumentException e){
+            } else {
                 getLogger().warning("Invalid material set in " + key);
             }
             ItemStack item = new ItemStack(mat);
@@ -176,11 +178,12 @@ public final class SedriPlugin extends JavaPlugin{
             Set<String> tierkeys = tiers.getKeys(false);
             for (String tierkey: tierkeys){
                 ConfigurationSection tier = tiers.getConfigurationSection(tierkey);
+                if (tier == null) continue;
                 mat = Material.ZOMBIE_HEAD;
-                try {
-                    String mate = tier.getString("material");
+                mate = tier.getString("material");
+                if (mate != null) {
                     mat = Material.valueOf(mate.toUpperCase());
-                } catch (NullPointerException e){
+                } else {
                     getLogger().warning("Invalid material set in " + tierkey + "in "+ key);
                 }
                 item = new ItemStack(mat);
@@ -198,10 +201,10 @@ public final class SedriPlugin extends JavaPlugin{
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 EntityType type = null;
-                try {
-                    String mob = tier.getString("boss");
+                String mob = tier.getString("boss");
+                if (mob != null) {
                     type = EntityType.valueOf(mob.toUpperCase());
-                } catch (IllegalArgumentException e){
+                } else {
                     getLogger().warning("Invalid boss mob set in "+ tierkey + " in " + key);
                 }
                 Integer max_xp = tier.getInt("required-xp");
@@ -220,10 +223,19 @@ public final class SedriPlugin extends JavaPlugin{
             }
             Set<String> levelkeys = levels.getKeys(false);
             ArrayList<Integer> levelist = new ArrayList<>();
+            ArrayList<SlayerLevel> slayerlevels = new ArrayList<>();
             for (String levelkey: levelkeys) {
+                ConfigurationSection level = tiers.getConfigurationSection(levelkey);
+                if (level == null){
+                    continue;
+                }
                 levelist.add(Integer.parseInt(levelkey));
-
+                ArrayList<String> rewards = (ArrayList<String>) level.getStringList("rewards-lore");
+                ArrayList<String> commands = (ArrayList<String>) level.getStringList("commands");
+                ArrayList<String> permissions = (ArrayList<String>) level.getStringList("permissions");
+                slayerlevels.add(new SlayerLevel(Integer.parseInt(levelkey), rewards, commands, permissions));
             }
+            Levels.put(key, slayerlevels);
             LevelList.put(key, levelist);
         }
     }
