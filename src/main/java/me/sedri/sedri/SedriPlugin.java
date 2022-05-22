@@ -3,6 +3,7 @@ package me.sedri.sedri;
 import me.sedri.sedri.Commands.*;
 import me.sedri.sedri.Data.SlayerConfig;
 import me.sedri.sedri.Data.SlayerData;
+import me.sedri.sedri.Data.SlayerLevel;
 import me.sedri.sedri.Data.SlayerXpStorage;
 import me.sedri.sedri.Listeners.*;
 import net.luckperms.api.LuckPerms;
@@ -34,6 +35,7 @@ public final class SedriPlugin extends JavaPlugin{
     public ItemStack[] mainslayermenu = new ItemStack[54];
     public ArrayList<ItemStack> slayermenu;
     public HashMap<String, ArrayList<Integer>> LevelList = new HashMap<>();
+    public HashMap<String, ArrayList<SlayerLevel>> Levels = new HashMap<>();
     public LinkedHashMap<Integer, String> slayermenuindex = new LinkedHashMap<>();
     public LinkedHashMap<String, ItemStack> slayersubmenu2 = new LinkedHashMap<>();
 
@@ -146,12 +148,6 @@ public final class SedriPlugin extends JavaPlugin{
             }
             meta.setLore(lore);
             item.setItemMeta(meta);
-            ArrayList<Integer> list = (ArrayList<Integer>) slayer.getIntegerList("level-list");
-            if (!list.isEmpty()) {
-                LevelList.put(key, list);
-            } else {
-                getLogger().warning("No level list has been set for " + key);
-            }
             if (i == 17 || i == 26 || i == 35){
                 i+=2;
             } else if (i >= 44){
@@ -217,6 +213,18 @@ public final class SedriPlugin extends JavaPlugin{
                     allSlayers.put(id, data);
                 }
             }
+            ConfigurationSection levels = slayer.getConfigurationSection("levels");
+            if (levels == null) {
+                getLogger().warning("No tiers defined in " + key);
+                continue;
+            }
+            Set<String> levelkeys = levels.getKeys(false);
+            ArrayList<Integer> levelist = new ArrayList<>();
+            for (String levelkey: levelkeys) {
+                levelist.add(Integer.parseInt(levelkey));
+
+            }
+            LevelList.put(key, levelist);
         }
     }
 

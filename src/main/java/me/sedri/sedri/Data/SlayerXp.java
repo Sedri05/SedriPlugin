@@ -49,7 +49,7 @@ public class SlayerXp {
 
     public void addXp(int xp){
         ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
-        if (levelist == null) return;  
+        if (levelist == null) return;
         if(level >= levelist.size()+1)return;
 
         if (this.xp + xp >= levelist.get((int) level)) {

@@ -58,3 +58,8 @@ test1:
         - "give %player% diamond 1"
       permissions:
         - "sedri.hello"
+    250:
+      rewards-lore:
+        "second rewards lore"
+      commands: []
+      permissions: []
