@@ -1,0 +1,60 @@
+test1:
+  #Name of the main menu item
+  name: '&4Test Boss'
+  #Material of the main menu item
+  material: apple
+  #Lore of the main menu item
+  #description:
+  #  - '&4First Line of Lore'
+  #  - '&aSecond lind of Lore'
+  #The tiers of this slayer
+  tiers:
+    #first tier. You can have as many as you want
+    tier1:
+      #Name of the tier item
+      name: '&cFirst tier of the test boss'
+      #Material of the tier item
+      material: zombie_head
+      #The amount of xp you need before a boss spawns
+      required-xp: 10
+      #The amound of xp you get when killing the boss
+      reward-xp: 15
+      #Lore of the tier item
+      description:
+        - '&afirst line of lore but is it?'
+        - Second line
+      #The boss mob
+      boss: zombie
+    tier2:
+      name: '&cSecond Tier of the test boss'
+      material: diamond_sword
+      required-xp: 15
+      reward-xp: 20
+      description:
+        - '&afirst line of lore'
+        - Second line
+      boss: zombie
+  #https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
+  #<mob>:<xp>
+  #XP is how much xp you get when killing that mob and is related to required-xp
+  mob-list:
+    - "zombie:1"
+    - "pig:2"
+  #The amount of xp needed to level up. Max level is decided by the size of the list
+  level-list:
+    - 100
+    - 250
+    - 1000
+    - 2000
+  #Levels
+  levels:
+    100:
+      rewards-lore:
+        - "a"
+        - "b"
+        - "c"
+      commands:
+        - "say hello"
+        - "give %player% diamond 1"
+      permissions:
+        - "sedri.hello"

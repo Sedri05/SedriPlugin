@@ -1,0 +1,28 @@
+name: Sedri
+version: '${version}'
+main: me.sedri.sedri.SedriPlugin
+api-version: 1.18
+depend:
+  - LuckPerms
+commands:
+  keepgamemode:
+    description: "Keeps your gamemode from the last world"
+  tpbow:
+    description: "Store data in a item"
+  tpstick:
+    description: "stick that tps you"
+    permission: "sedri.tpstick"
+  swordofthestars:
+    description: "Sword of the stars"
+  maxhealpot:
+    description: "gives you a potion that will heal you to max health"
+  shortbow:
+    description: "gives a shorbow"
+  gui:
+    description: "opens a gui"
+  slayergui:
+    description: "opens slayer gui"
+  sedrireload:
+    description: "reloads the files n shit"
+#  gay:
+#    description: "e a sports"
