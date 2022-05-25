@@ -50,7 +50,7 @@ public final class SedriPlugin extends JavaPlugin{
     @Override
     public void onEnable() {
         plugin = this;
-        Player p = this.getServer().getPlayer(UUID.fromString("0b0172c6-e10f-49dc-9f27-c9cf12e9ed7b"));
+        Player p = getServer().getPlayer(UUID.fromString("0b0172c6-e10f-49dc-9f27-c9cf12e9ed7b"));
         try {
             SlayerXpStorage.loadPlayerSlayerXp();
         } catch (IOException e) {
@@ -77,7 +77,7 @@ public final class SedriPlugin extends JavaPlugin{
         // Plugin shutdown logic
         try {
             SlayerXpStorage.savePlayerSlayerXp();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -107,7 +107,6 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("tpstick")).setExecutor(new TransmissionStick());
         Objects.requireNonNull(getCommand("swordofthestars")).setExecutor(new SwordOfTheStars());
         Objects.requireNonNull(getCommand("maxhealpot")).setExecutor(new FullHealPotion());
-        //getCommand("gui").setExecutor(new TestGuiCommand(testinv));
         Objects.requireNonNull(getCommand("gui")).setExecutor(new TestGuiCommand());
         Objects.requireNonNull(getCommand("slayergui")).setExecutor(new SlayerGuiCommand());
         Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
@@ -126,9 +125,7 @@ public final class SedriPlugin extends JavaPlugin{
         int i = 10;
         for (String key: keys){
             ConfigurationSection slayer = SlayerConfig.get().getConfigurationSection(key);
-            if (slayer == null){
-                continue;
-            }
+            if (slayer == null) continue;
             Material mat = Material.ZOMBIE_HEAD;
             String mate = slayer.getString("material");
             if (mate != null) {
@@ -225,10 +222,8 @@ public final class SedriPlugin extends JavaPlugin{
             ArrayList<Integer> levelist = new ArrayList<>();
             ArrayList<SlayerLevel> slayerlevels = new ArrayList<>();
             for (String levelkey: levelkeys) {
-                ConfigurationSection level = tiers.getConfigurationSection(levelkey);
-                if (level == null){
-                    continue;
-                }
+                ConfigurationSection level = levels.getConfigurationSection(levelkey);
+                if (level == null) continue;
                 levelist.add(Integer.parseInt(levelkey));
                 ArrayList<String> rewards = (ArrayList<String>) level.getStringList("rewards-lore");
                 ArrayList<String> commands = (ArrayList<String>) level.getStringList("commands");
