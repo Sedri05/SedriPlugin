@@ -67,7 +67,7 @@ public class SlayerXpStorage {
         gson.toJson(SlayerList, writer);
         writer.flush();
         writer.close();
-        System.out.println("Notes saved.");
+        Bukkit.getLogger().info("Notes saved.");
     }
     public static void loadPlayerSlayerXp() throws IOException {
         Gson gson = new Gson();

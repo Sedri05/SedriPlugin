@@ -1,6 +1,8 @@
 package me.sedri.sedri.Data;
 
 import me.sedri.sedri.SedriPlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -33,9 +35,18 @@ public class SlayerXp {
 
     public void incrementLevel(){
         this.level++;
+        SlayerLevel lvl = SedriPlugin.getPlugin().Levels.get(slayer).get((int)level);
         Player p = SedriPlugin.getPlugin().getServer().getPlayer(this.uuid);
         if (p != null) {
             p.sendMessage("You have leveled up to level" + this.level);
+            for (String perm: lvl.getPermissions()){
+                SedriPlugin.getPlugin().addPermission(uuid, perm);
+            }
+            for (String command: lvl.getCommands()){
+                command = command.replace("%player%", p.getName());
+                ConsoleCommandSender cons = Bukkit.getServer().getConsoleSender();
+                Bukkit.dispatchCommand(cons, command);
+            }
         }
     }
 

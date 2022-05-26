@@ -2,6 +2,7 @@ package me.sedri.sedri.Data;
 
 import org.bukkit.entity.EntityType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SlayerData{
@@ -12,13 +13,17 @@ public class SlayerData{
     private final int reward;
     private int xp = 0;
     private final String tier;
+    private final String name;
+    private final ArrayList<String> description;
 
-    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier){
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc){
         this.mobs = mobs;
         this.boss = boss;
         this.max_xp = max_xp;
         this.reward = reward;
         this.tier = tier;
+        this.name = name;
+        this.description = desc;
     }
 
     public SlayerData(SlayerData data){
@@ -29,6 +34,8 @@ public class SlayerData{
         this.bossSpawned = data.isBossSpawned();
         this.xp = data.getXp();
         this.tier = data.getTier();
+        this.name = data.getName();
+        this.description = data.getDescription();
     }
 
     public void IncrementLevel(){
@@ -76,5 +83,12 @@ public class SlayerData{
 
     public void setToMaxXp(){
         xp = max_xp;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public ArrayList<String> getDescription() {
+        return description;
     }
 }

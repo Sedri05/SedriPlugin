@@ -1,13 +1,13 @@
 package me.sedri.sedri.Gui;
 
 import me.sedri.sedri.Data.SlayerData;
+import me.sedri.sedri.Data.SlayerLevel;
 import me.sedri.sedri.Data.SlayerXp;
 import me.sedri.sedri.Data.SlayerXpStorage;
 import me.sedri.sedri.SedriPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,6 +29,8 @@ public class MainSlayerGui implements Listener {
     public String menu = "main";
     private final SedriPlugin plugin;
     private String[] currentmenu;
+
+    private boolean reward = false;
 
     private final Player p;
 
@@ -57,23 +59,44 @@ public class MainSlayerGui implements Listener {
             inv.setContents(plugin.mainslayermenu);
             openInventory();
             return;
+        } else if (reward){
+            ItemStack[] stack = new ItemStack[inv.getSize()];
+            Arrays.fill(stack, createGuiItem(Material.BLACK_STAINED_GLASS_PANE, ""));
+            inv.setContents(stack);
+            inv.setItem(inv.getSize()-5, createGuiItem(Material.BARRIER, "&cBack"));
+            Set<String> keys = plugin.Levels.keySet();
+            int i = 10;
+            ArrayList<SlayerLevel> levels = plugin.Levels.get(menu);
+            for (SlayerLevel lvl: levels) {
+                ArrayList<String> rewards = lvl.getRewards();
+                String[] str = new String[rewards.size()]; // = String[rewards.size()];
+                int j = 0;
+                for (String rew : rewards) {
+                    str[j] = rew;
+                    j++;
+                }
+                inv.setItem(i, createGuiItem(Material.GOLD_INGOT, "&6Level " + (i - 9), str));
+                i++;
+            }
+            for (; i < 17; i++) {
+                inv.setItem(i, createGuiItem(Material.COAL, "&4No Level", "&7This Level is", "&7not available."));
+            }
+            return;
         }
         inv = Bukkit.createInventory(p, 45, ChatColor.RED + "Slayer Gui");
         ItemStack[] stack = new ItemStack[inv.getSize()];
         Arrays.fill(stack, createGuiItem(Material.BLACK_STAINED_GLASS_PANE, ""));
         inv.setContents(stack);
         inv.setItem(inv.getSize()-5, createGuiItem(Material.BARRIER, "&cBack"));
-        Set<String> keys = plugin.slayersubmenu2.keySet();
+        Set<String> keys = plugin.slayersubmenu.keySet();
         int i = 10;
         currentmenu = new String[inv.getSize()];
         for (String key: keys){
             plugin.getLogger().info(key);
             String[] id = key.split(":");
             if (id[0].equalsIgnoreCase(menu)){
-                if (i == 17) {
-                    break;
-                }
-                inv.setItem(i, plugin.slayersubmenu2.get(key));
+                if (i == 17) break;
+                inv.setItem(i, plugin.slayersubmenu.get(key));
                 currentmenu[i] = key;
                 i++;
             }
@@ -95,10 +118,11 @@ public class MainSlayerGui implements Listener {
         }
         inv.setItem(29, createGuiItem(Material.DIAMOND_SWORD, "&bSlayer Info", "&aLevel: "+plvl+"&e/"+maxlvl,
                 "&aExp: "+pxp+"&e/"+maxxp));
+        inv.setItem(33, createGuiItem(Material.GOLD_BLOCK, "&6Rewards", " ", "&aClick for more info"));
         openInventory();
     }
 
-    protected ItemStack createGuiItem(final Material material, final String name, final String... lore) {
+    public static ItemStack createGuiItem(final Material material, final String name, final String... lore) {
         final ItemStack item = new ItemStack(material, 1);
         final ItemMeta meta = item.getItemMeta();
 
@@ -132,8 +156,15 @@ public class MainSlayerGui implements Listener {
                 initializeItems();
             }
         } else {
-            if (e.getRawSlot() == inv.getSize()-5){
-                menu = "main";
+            if (e.getRawSlot() == inv.getSize()-5) {
+                if (reward){
+                    reward = false;
+                } else {
+                    menu = "main";
+                }
+                initializeItems();
+            } else if(e.getRawSlot() == 33){
+                reward = true;
                 initializeItems();
             } else {
                 String s = currentmenu[e.getRawSlot()];
@@ -142,6 +173,19 @@ public class MainSlayerGui implements Listener {
                     if (!plugin.activeSlayer.containsKey(p)) {
                         plugin.activeSlayer.put(p, data);
                         p.closeInventory();
+                        String name = data.getName();
+                        String str = "&cYou have started a " + name;
+                        ArrayList<String> ls = data.getDescription();
+                        p.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.STRIKETHROUGH + "============================");
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
+                        for (String st: ls){
+                            if (ChatColor.stripColor(st).equals("Click to start")) continue;
+                            p.sendMessage(st);
+                        }
+                        p.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.STRIKETHROUGH + "============================");
+                    } else {
+                        plugin.activeSlayer.remove(p);
+                        p.sendMessage(ChatColor.RED + "You're previous Slayer has been canceled.");
                     }
                 }
             }

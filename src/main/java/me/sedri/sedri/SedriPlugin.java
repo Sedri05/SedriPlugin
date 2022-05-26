@@ -36,7 +36,7 @@ public final class SedriPlugin extends JavaPlugin{
     public HashMap<String, ArrayList<Integer>> LevelList = new HashMap<>();
     public HashMap<String, ArrayList<SlayerLevel>> Levels = new HashMap<>();
     public LinkedHashMap<Integer, String> slayermenuindex = new LinkedHashMap<>();
-    public LinkedHashMap<String, ItemStack> slayersubmenu2 = new LinkedHashMap<>();
+    public LinkedHashMap<String, ItemStack> slayersubmenu = new LinkedHashMap<>();
 
     public static void setTransmissionDefault(Player p){
         ArrayList<String> setvalues = new ArrayList<>();
@@ -63,9 +63,7 @@ public final class SedriPlugin extends JavaPlugin{
         readyCommands();
         getConfig().options().copyDefaults();
         saveDefaultConfig();
-        if (!getFile().exists()) {
-            saveResource("slayers.yml", false);
-        }
+        saveResource("slayers.yml", false);
         SlayerConfig.setup();
         readySlayers();
 
@@ -116,7 +114,7 @@ public final class SedriPlugin extends JavaPlugin{
         slayermenu = new ArrayList<>();
         mainslayermenu = new ItemStack[54];
         slayermenuindex = new LinkedHashMap<>();
-        slayersubmenu2 = new LinkedHashMap<>();
+        slayersubmenu = new LinkedHashMap<>();
         allSlayers = new LinkedHashMap<>();
         ItemStack fillitem = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         fillitem.getItemMeta().setDisplayName("");
@@ -185,8 +183,10 @@ public final class SedriPlugin extends JavaPlugin{
                 }
                 item = new ItemStack(mat);
                 meta = item.getItemMeta();
+                String name = tierkey;
                 try {
-                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', tier.getString("name")));
+                    name = tier.getString("name");
+                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
                 } catch (NullPointerException e){
                     meta.setDisplayName(tierkey);
                 }
@@ -208,8 +208,8 @@ public final class SedriPlugin extends JavaPlugin{
                 Integer reward_xp = tier.getInt("reward-xp");
                 String id = key + ":" + tierkey;
                 if (type != null) {
-                    slayersubmenu2.put(id, item);
-                    SlayerData data = new SlayerData(mobs, type, max_xp, reward_xp, key);
+                    slayersubmenu.put(id, item);
+                    SlayerData data = new SlayerData(mobs, type, max_xp, reward_xp, key, name, lore);
                     allSlayers.put(id, data);
                 }
             }

@@ -1,18 +1,18 @@
-test1:
+zombie_slayer:
   #Name of the main menu item
-  name: '&4Test Boss'
+  name: '&4Zombie Slayer'
   #Material of the main menu item
-  material: apple
+  material: diamond_sword
   #Lore of the main menu item
-  #description:
-  #  - '&4First Line of Lore'
-  #  - '&aSecond lind of Lore'
+  description:
+    - '&cA beginners slayer'
+    - '&aSecond lind of Lore'
   #The tiers of this slayer
   tiers:
-    #first tier. You can have as many as you want
+    #first tier. You can have as many as you want. name of the tier isn't important
     tier1:
       #Name of the tier item
-      name: '&cFirst tier of the test boss'
+      name: '&cZombie Slayer Tier I'
       #Material of the tier item
       material: zombie_head
       #The amount of xp you need before a boss spawns
@@ -21,45 +21,51 @@ test1:
       reward-xp: 15
       #Lore of the tier item
       description:
-        - '&afirst line of lore but is it?'
-        - Second line
+        - '&7Difficulty: &eEasy'
+        - ""
+        - "&7Kill zombies to spawn the"
+        - "&cZombie Boss. &7This boss is just a placeholder"
+        - ""
+        - "&eClick to start"
       #The boss mob
       boss: zombie
     tier2:
-      name: '&cSecond Tier of the test boss'
-      material: diamond_sword
+      name: '&cZombie Slayer Tier II'
+      material: zombie_head
       required-xp: 15
       reward-xp: 20
       description:
-        - '&afirst line of lore'
-        - Second line
+        - '&7Difficulty: &6Medium'
+        - ""
+        - "&7Kill zombies to spawn the"
+        - "&cZombie Boss. &7This boss is just a placeholder"
       boss: zombie
   #https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
   #<mob>:<xp>
   #XP is how much xp you get when killing that mob and is related to required-xp
+  #MM support will be added when we update to latest
   mob-list:
     - "zombie:1"
-    - "pig:2"
-  #The amount of xp needed to level up. Max level is decided by the size of the list
-  level-list:
-    - 100
-    - 250
-    - 1000
-    - 2000
+    - "ZOMBIE_VILLAGER:2"
   #Levels
   levels:
+    #The key indicated the amound of xp you need to advance to the next level
     100:
+      #This is just item lore and does not actually give rewards
       rewards-lore:
-        - "a"
-        - "b"
-        - "c"
+        - "&764 Rotten Flesh"
+        - "&b1 Diamond Block"
+        - "&6Access to /craft"
+      #These commands get run (from console) when the player levels up
+      #Use %player% as the player
       commands:
-        - "say hello"
-        - "give %player% diamond 1"
+        - "give %player% rotten_flesh 64"
+        - "give %player% diamond_block 1"
+      #These permissions get given when a player levels up
       permissions:
-        - "sedri.hello"
+        - "essentials.workbench"
     250:
       rewards-lore:
-        "second rewards lore"
+        - "second rewards lore"
       commands: []
       permissions: []
