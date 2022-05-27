@@ -1,6 +1,7 @@
 package me.sedri.sedri.Commands;
 
 import me.sedri.sedri.SedriPlugin;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,8 +16,10 @@ public class PvpToggle implements CommandExecutor {
             if (!p.hasPermission("sedri.togglepvp")) return false;
             if (SedriPlugin.getPlugin().pvpallowed.contains(p)){
                 SedriPlugin.getPlugin().pvpallowed.remove(p);
+                p.sendMessage(ChatColor.RED +"You can no longer hit people!");
             } else {
                 SedriPlugin.getPlugin().pvpallowed.add(p);
+                p.sendMessage(ChatColor.RED +"You can hit now people!");
             }
         }
 
