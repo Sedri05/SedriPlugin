@@ -60,14 +60,14 @@ public class SlayerXpStorage {
     }
     public static void savePlayerSlayerXp() throws IOException {
         Gson gson = new Gson();
-        File file = new File(SedriPlugin.getPlugin().getDataFolder().getAbsolutePath() + "/notes.json");
+        File file = new File(SedriPlugin.getPlugin().getDataFolder().getAbsolutePath() + "/slayers.json");
         file.getParentFile().mkdir();
         file.createNewFile();
         Writer writer = new FileWriter(file, false);
         gson.toJson(SlayerList, writer);
         writer.flush();
         writer.close();
-        Bukkit.getLogger().info("Notes saved.");
+        Bukkit.getLogger().info("Slayers saved.");
     }
     public static void loadPlayerSlayerXp() throws IOException {
         Gson gson = new Gson();
@@ -86,7 +86,7 @@ public class SlayerXpStorage {
                 }
                 SlayerList.put(key, ea);
             }
-            Bukkit.getLogger().info("Notes loaded.");
+            Bukkit.getLogger().info("Slayers loaded.");
         }
     }
 }

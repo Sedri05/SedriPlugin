@@ -11,6 +11,10 @@ zombie_slayer:
   tiers:
     #first tier. You can have as many as you want. name of the tier isn't important
     tier1:
+      #The permission that is needed to start the slayer. Can be left empty
+      required-perm: "sedri.zombie.tier.1"
+      #The amount if coins it wil take to start the slayer. Set to 0 to disable
+      required-coins: 10000
       #Name of the tier item
       name: '&cZombie Slayer Tier I'
       #Material of the tier item
@@ -30,6 +34,8 @@ zombie_slayer:
       #The boss mob
       boss: zombie
     tier2:
+      required-perm: "sedri.zombie.tier.2"
+      required-coins: 10000
       name: '&cZombie Slayer Tier II'
       material: zombie_head
       required-xp: 15
@@ -39,6 +45,8 @@ zombie_slayer:
         - ""
         - "&7Kill zombies to spawn the"
         - "&cZombie Boss. &7This boss is just a placeholder"
+        - ""
+        - "&eClick to start"
       boss: zombie
   #https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
   #<mob>:<xp>

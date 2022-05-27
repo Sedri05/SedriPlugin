@@ -24,5 +24,8 @@ commands:
     description: "opens slayer gui"
   sedrireload:
     description: "reloads the files n shit"
+  pvp:
+    description: "Toggles pvp."
+    permission: "sedri.togglepvp"
 #  gay:
 #    description: "e a sports"

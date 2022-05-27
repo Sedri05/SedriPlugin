@@ -64,7 +64,6 @@ public class MainSlayerGui implements Listener {
             Arrays.fill(stack, createGuiItem(Material.BLACK_STAINED_GLASS_PANE, ""));
             inv.setContents(stack);
             inv.setItem(inv.getSize()-5, createGuiItem(Material.BARRIER, "&cBack"));
-            Set<String> keys = plugin.Levels.keySet();
             int i = 10;
             ArrayList<SlayerLevel> levels = plugin.Levels.get(menu);
             for (SlayerLevel lvl: levels) {
@@ -149,8 +148,11 @@ public class MainSlayerGui implements Listener {
         if (!e.getInventory().equals(inv)) return;
         if(e.getRawSlot() >= inv.getSize() && e.getClick() != ClickType.DOUBLE_CLICK) return;
         final Player p = (Player) e.getWhoClicked();
-        p.sendMessage(e.getRawSlot() + "");
         if (menu == null || menu.equals("main")){
+            if (e.getRawSlot() == inv.getSize()-5) {
+                p.closeInventory();
+                return;
+            }
             if(plugin.slayermenuindex.containsKey(e.getRawSlot())){
                 menu = plugin.slayermenuindex.get(e.getRawSlot());
                 initializeItems();
@@ -171,18 +173,22 @@ public class MainSlayerGui implements Listener {
                 if (plugin.allSlayers.containsKey(s)) {
                     SlayerData data = new SlayerData(plugin.allSlayers.get(s));
                     if (!plugin.activeSlayer.containsKey(p)) {
-                        plugin.activeSlayer.put(p, data);
-                        p.closeInventory();
-                        String name = data.getName();
-                        String str = "&cYou have started a " + name;
-                        ArrayList<String> ls = data.getDescription();
-                        p.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.STRIKETHROUGH + "============================");
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
-                        for (String st: ls){
-                            if (ChatColor.stripColor(st).equals("Click to start")) continue;
-                            p.sendMessage(st);
+                        if (data.canStart(p)) {
+                            plugin.activeSlayer.put(p, data);
+                            p.closeInventory();
+                            String name = data.getName();
+                            String str = "&cYou have started a " + name;
+                            ArrayList<String> ls = data.getDescription();
+                            p.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.STRIKETHROUGH + "============================");
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', str));
+                            for (String st : ls) {
+                                if (ChatColor.stripColor(st).equals("Click to start")) continue;
+                                p.sendMessage(st);
+                            }
+                            p.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.STRIKETHROUGH + "============================");
+                        } else {
+                            p.sendMessage(ChatColor.RED + "You can't start this slayer!");
                         }
-                        p.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.STRIKETHROUGH + "============================");
                     } else {
                         plugin.activeSlayer.remove(p);
                         p.sendMessage(ChatColor.RED + "You're previous Slayer has been canceled.");

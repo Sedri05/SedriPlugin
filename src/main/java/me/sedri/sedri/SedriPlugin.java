@@ -5,11 +5,13 @@ import me.sedri.sedri.Data.SlayerConfig;
 import me.sedri.sedri.Data.SlayerData;
 import me.sedri.sedri.Data.SlayerLevel;
 import me.sedri.sedri.Data.SlayerXpStorage;
+import me.sedri.sedri.Gui.MainSlayerGui;
 import me.sedri.sedri.Listeners.*;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.util.*;
 
 public final class SedriPlugin extends JavaPlugin{
     private static SedriPlugin plugin;
+    private static Economy econ = null;
     public ArrayList<Player> worldgamemodechange = new ArrayList<>();
     public HashMap<Player, SlayerData> activeSlayer = new HashMap<>();
     public LinkedHashMap<String, SlayerData> allSlayers = new LinkedHashMap<>();
@@ -38,6 +42,8 @@ public final class SedriPlugin extends JavaPlugin{
     public LinkedHashMap<Integer, String> slayermenuindex = new LinkedHashMap<>();
     public LinkedHashMap<String, ItemStack> slayersubmenu = new LinkedHashMap<>();
 
+    public ArrayList<Player> pvpallowed = new ArrayList<>();
+
     public static void setTransmissionDefault(Player p){
         ArrayList<String> setvalues = new ArrayList<>();
         setvalues.add("8");
@@ -47,9 +53,17 @@ public final class SedriPlugin extends JavaPlugin{
     public static SedriPlugin getPlugin(){
         return plugin;
     }
+    public static Economy getEconomy() {
+        return econ;
+    }
     @Override
     public void onEnable() {
         plugin = this;
+        if (!setupEconomy() ) {
+            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         Player p = getServer().getPlayer(UUID.fromString("0b0172c6-e10f-49dc-9f27-c9cf12e9ed7b"));
         try {
             SlayerXpStorage.loadPlayerSlayerXp();
@@ -80,6 +94,18 @@ public final class SedriPlugin extends JavaPlugin{
         }
     }
 
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
     public static PersistentDataContainer getDataMainHand(Player p){
         ItemStack item = p.getInventory().getItemInMainHand();
         ItemMeta meta = item.getItemMeta();
@@ -108,6 +134,7 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("gui")).setExecutor(new TestGuiCommand());
         Objects.requireNonNull(getCommand("slayergui")).setExecutor(new SlayerGuiCommand());
         Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
+        Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpToggle());
     }
 
     public void readySlayers(){
@@ -120,6 +147,7 @@ public final class SedriPlugin extends JavaPlugin{
         fillitem.getItemMeta().setDisplayName("");
         Arrays.fill(mainslayermenu, fillitem);
         Set<String> keys = SlayerConfig.get().getKeys(false);
+        mainslayermenu[mainslayermenu.length-5] = MainSlayerGui.createGuiItem(Material.BARRIER, "&cClose");
         int i = 10;
         for (String key: keys){
             ConfigurationSection slayer = SlayerConfig.get().getConfigurationSection(key);
@@ -195,6 +223,8 @@ public final class SedriPlugin extends JavaPlugin{
                 for (String loreline : lorelist) {
                     lore.add(ChatColor.translateAlternateColorCodes('&', loreline));
                 }
+                String perm = tier.getString("required-perm");
+                Double money = tier.getDouble("required-coins");
                 meta.setLore(lore);
                 item.setItemMeta(meta);
                 EntityType type = null;
@@ -209,7 +239,7 @@ public final class SedriPlugin extends JavaPlugin{
                 String id = key + ":" + tierkey;
                 if (type != null) {
                     slayersubmenu.put(id, item);
-                    SlayerData data = new SlayerData(mobs, type, max_xp, reward_xp, key, name, lore);
+                    SlayerData data = new SlayerData(mobs, type, max_xp, reward_xp, key, name, lore, perm, money);
                     allSlayers.put(id, data);
                 }
             }

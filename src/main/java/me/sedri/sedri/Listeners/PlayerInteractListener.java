@@ -12,6 +12,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +23,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Set;
+import java.util.UUID;
 
 public class PlayerInteractListener implements Listener {
 
@@ -118,6 +120,17 @@ public class PlayerInteractListener implements Listener {
                     SlayerXp slayerplayer = SlayerXpStorage.createPlayer(p, slayer.getTier());
                     slayerplayer.addXp(slayer.getReward());
                     SlayerXpStorage.updatePlayerSlayerXp(slayerplayer);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerHitEvent(EntityDamageByEntityEvent e){
+        if (e.getDamager() instanceof Player p){
+            if (e.getEntity() instanceof  Player ent){
+                if (SedriPlugin.getPlugin().pvpallowed.contains(p)){
+                    e.setCancelled(false);
                 }
             }
         }

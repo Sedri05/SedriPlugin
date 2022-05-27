@@ -1,6 +1,9 @@
 package me.sedri.sedri.Data;
 
+import me.sedri.sedri.SedriPlugin;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +18,20 @@ public class SlayerData{
     private final String tier;
     private final String name;
     private final ArrayList<String> description;
+    private String perm = null;
+    private double money = 0;
 
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc, String perm, Double money){
+        this.mobs = mobs;
+        this.boss = boss;
+        this.max_xp = max_xp;
+        this.reward = reward;
+        this.tier = tier;
+        this.name = name;
+        this.description = desc;
+        this.perm = perm;
+        this.money = money;
+    }
     public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc){
         this.mobs = mobs;
         this.boss = boss;
@@ -24,6 +40,26 @@ public class SlayerData{
         this.tier = tier;
         this.name = name;
         this.description = desc;
+    }
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc, String perm){
+        this.mobs = mobs;
+        this.boss = boss;
+        this.max_xp = max_xp;
+        this.reward = reward;
+        this.tier = tier;
+        this.name = name;
+        this.description = desc;
+        this.perm = perm;
+    }
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc, Double money){
+        this.mobs = mobs;
+        this.boss = boss;
+        this.max_xp = max_xp;
+        this.reward = reward;
+        this.tier = tier;
+        this.name = name;
+        this.description = desc;
+        this.money = money;
     }
 
     public SlayerData(SlayerData data){
@@ -36,6 +72,8 @@ public class SlayerData{
         this.tier = data.getTier();
         this.name = data.getName();
         this.description = data.getDescription();
+        this.perm = data.getPerm();
+        this.money = data.getMoney();
     }
 
     public void IncrementLevel(){
@@ -90,5 +128,25 @@ public class SlayerData{
 
     public ArrayList<String> getDescription() {
         return description;
+    }
+
+    public String getPerm() {
+        return perm;
+    }
+
+    public double getMoney() {
+        return money;
+    }
+
+    public boolean canStart(Player p){
+        if (perm != null) {
+            if (!p.hasPermission(perm)) return false;
+        }
+        if (money > 0) {
+            Economy econ = SedriPlugin.getEconomy();
+            if (!(econ.getBalance(p) >= money)) return false;
+            econ.withdrawPlayer(p, money);
+        }
+        return true;
     }
 }
