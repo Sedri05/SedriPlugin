@@ -107,12 +107,16 @@ public class MainSlayerGui implements Listener {
         int plvl = (int) player.getLevel();
         int pxp = (int) player.getXp();
         int maxlvl = 0;
-        int maxxp = 0;
+        String maxxp = "0";
         try {
             ArrayList<Integer> lvllist = plugin.LevelList.get(menu);
             maxlvl = lvllist.size();
-            maxxp = lvllist.get(plvl);
-        } catch (NullPointerException e){
+            try {
+                maxxp = lvllist.get(plvl) + "";
+            } catch (IndexOutOfBoundsException e){
+                maxxp = "∞";
+            }
+        } catch (NullPointerException e) {
             plugin.getLogger().warning("No level list has been set for " + menu);
         }
         inv.setItem(29, createGuiItem(Material.DIAMOND_SWORD, "&bSlayer Info", "&aLevel: "+plvl+"&e/"+maxlvl,

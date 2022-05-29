@@ -27,5 +27,7 @@ commands:
   pvp:
     description: "Toggles pvp."
     permission: "sedri.togglepvp"
+  test:
+    description: no
 #  gay:
 #    description: "e a sports"

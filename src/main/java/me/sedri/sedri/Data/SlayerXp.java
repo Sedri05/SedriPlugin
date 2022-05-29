@@ -34,9 +34,9 @@ public class SlayerXp {
     }
 
     public void incrementLevel(){
-        this.level++;
         SlayerLevel lvl = SedriPlugin.getPlugin().Levels.get(slayer).get((int)level);
         Player p = SedriPlugin.getPlugin().getServer().getPlayer(this.uuid);
+        this.level++;
         if (p != null) {
             p.sendMessage("You have leveled up to level" + this.level);
             for (String perm: lvl.getPermissions()){
@@ -61,14 +61,16 @@ public class SlayerXp {
     public void addXp(int xp){
         ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
         if (levelist == null) return;
-        if(level >= levelist.size()+1)return;
-
-        if (this.xp + xp >= levelist.get((int) level)) {
-            incrementLevel();
-            this.xp = this.xp + xp - levelist.get((int) level);
-        } else {
+        if(level >= levelist.size()) {
             this.xp += xp;
+            return;
         }
+        if (this.xp + xp >= levelist.get((int) level)) {
+            this.xp = this.xp + xp - levelist.get((int) level);
+            incrementLevel();
+            return;
+        }
+        this.xp += xp;
     }
     public String getSlayer() {
         return slayer;
@@ -89,12 +91,35 @@ public class SlayerXp {
     public String getBar(){
         ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
         if (levelist == null) return "UNIDENTIFIED - ERROR";
-        if(level >= levelist.size()+1)return "&a&lMAX LEVEL";
-        Integer lvlxp = levelist.get((int)level);
-        String str = "-------------------------";
-        for (int i = 0; i<=(int)xp/lvlxp*25; i++){
-            str = str.replace("-", "&a-");
+        if(level >= levelist.size()) return "";
+        Integer lvlxp = levelist.get((int) level);
+        String str = "&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍&a▍";
+        for (int i = 0; i<=xp/lvlxp*25; i++){
+            str = str.replaceFirst("&a▍", "&2▍");
         }
-        return str + "&e" + (int)xp/lvlxp*100 + "%";
+        return str;
+    }
+    public String getPercent(){
+        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levelist == null) return "UNIDENTIFIED - ERROR";
+        if(level >= levelist.size()) {
+            Integer lvlxp = levelist.get((int) level-1);
+            return Math.round(1.0*(xp+lvlxp)/lvlxp*100) + "%";
+        }
+        Integer lvlxp = levelist.get((int) level);
+        return Math.round(1.0*(xp)/lvlxp*100) + "%";
+    }
+
+    public String getNextLevel(){
+        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levelist == null) return "UNIDENTIFIED - ERROR";
+        if(level >= levelist.size())return "∞";
+        return Math.round(level+1)+"";
+    }
+
+    public Boolean reachedMaxLevel(){
+        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levelist == null) return null;
+        return level >= levelist.size();
     }
 }

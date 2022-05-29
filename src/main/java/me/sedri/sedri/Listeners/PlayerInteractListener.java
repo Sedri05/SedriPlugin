@@ -102,21 +102,28 @@ public class PlayerInteractListener implements Listener {
                 if (slayer.reachedMaxXp()) {
                     slayer.setBossSpawned(true);
                     EntityType bosstype = slayer.getBoss();
+                    p.sendMessage("");
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYour " + slayer.getName() + " &cis spawning!"));
+                    p.sendMessage("");
                     e.getEntity().getWorld().spawnEntity(e.getEntity().getLocation(), bosstype);
                 }
             } else {
-                p.sendMessage(slayer.getBoss().toString());
                 if (e.getEntity().getType().equals(slayer.getBoss())){
                     String tier = slayer.getTier().split(":")[0];
                     SlayerXp slayerplayer = SlayerXpStorage.createPlayer(p, tier);
                     slayerplayer.addXp(slayer.getReward());
-                    String bar = slayerplayer.getBar();
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lSLAYER DEFEATED"));
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have gained &e" + slayer.getReward() + " " +slayer.getSlayername() + " &aXP!"));
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', bar));
-                    plugin.activeSlayer.remove(p);
                     SlayerXpStorage.updatePlayerSlayerXp(slayerplayer);
+                    String bar = slayerplayer.getBar();
+                    p.sendMessage("");
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lSLAYER DEFEATED!"));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have gained &e" + slayer.getReward() + " " +slayer.getSlayername() + " &aXP!"));
+                    if (!slayerplayer.reachedMaxLevel()) {
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aProgress to level " + slayerplayer.getNextLevel() + " " + bar + " &e" + slayerplayer.getPercent()));
+                    } else {
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lMAX LEVEL &e" + slayerplayer.getPercent()));
+                    }
+                    p.sendMessage("");
+                    plugin.activeSlayer.remove(p);
                 }
             }
         }

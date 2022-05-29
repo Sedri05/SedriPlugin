@@ -163,6 +163,7 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("slayergui")).setExecutor(new SlayerGuiCommand());
         Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpToggle());
+        getCommand("test").setExecutor(new testcommand());
     }
 
     public void readySlayers(){
