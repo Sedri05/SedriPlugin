@@ -2,6 +2,11 @@ package me.sedri.sedri.Data;
 
 import me.sedri.sedri.SedriPlugin;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -16,12 +21,14 @@ public class SlayerData{
     private final int reward;
     private int xp = 0;
     private final String tier;
+    private final String slayername;
     private final String name;
     private final ArrayList<String> description;
     private String perm = null;
     private double money = 0;
+    private BossBar bossBar;
 
-    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc, String perm, Double money){
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, String slayername, ArrayList<String> desc, String perm, Double money){
         this.mobs = mobs;
         this.boss = boss;
         this.max_xp = max_xp;
@@ -31,8 +38,9 @@ public class SlayerData{
         this.description = desc;
         this.perm = perm;
         this.money = money;
+        this.slayername = slayername;
     }
-    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc){
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, String slayername, ArrayList<String> desc){
         this.mobs = mobs;
         this.boss = boss;
         this.max_xp = max_xp;
@@ -40,8 +48,9 @@ public class SlayerData{
         this.tier = tier;
         this.name = name;
         this.description = desc;
+        this.slayername = slayername;
     }
-    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc, String perm){
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, String slayername, ArrayList<String> desc, String perm){
         this.mobs = mobs;
         this.boss = boss;
         this.max_xp = max_xp;
@@ -50,8 +59,9 @@ public class SlayerData{
         this.name = name;
         this.description = desc;
         this.perm = perm;
+        this.slayername = slayername;
     }
-    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, ArrayList<String> desc, Double money){
+    public SlayerData(HashMap<EntityType, Integer> mobs, EntityType boss, Integer max_xp, Integer reward, String tier, String name, String slayername, ArrayList<String> desc, Double money){
         this.mobs = mobs;
         this.boss = boss;
         this.max_xp = max_xp;
@@ -60,9 +70,10 @@ public class SlayerData{
         this.name = name;
         this.description = desc;
         this.money = money;
+        this.slayername = slayername;
     }
 
-    public SlayerData(SlayerData data){
+    public SlayerData(SlayerData data, Player p){
         this.mobs = data.getMobs();
         this.boss = data.getBoss();
         this.max_xp = data.getMax_xp();
@@ -74,9 +85,9 @@ public class SlayerData{
         this.description = data.getDescription();
         this.perm = data.getPerm();
         this.money = data.getMoney();
-    }
-
-    public void IncrementLevel(){
+        this.bossBar = data.getBossBar();
+        this.slayername = data.getSlayername();
+        initBossBar(p);
     }
 
     public String getTier() {
@@ -117,6 +128,11 @@ public class SlayerData{
 
     public void addXp(int xp_to_add){
         xp = xp + xp_to_add;
+        updateBossBar();
+    }
+
+    public BossBar getBossBar() {
+        return bossBar;
     }
 
     public void setToMaxXp(){
@@ -128,6 +144,10 @@ public class SlayerData{
 
     public ArrayList<String> getDescription() {
         return description;
+    }
+
+    public String getSlayername() {
+        return slayername;
     }
 
     public String getPerm() {
@@ -148,5 +168,26 @@ public class SlayerData{
             econ.withdrawPlayer(p, money);
         }
         return true;
+    }
+
+    public boolean reachedMaxXp(){
+        if (xp >= max_xp){
+            bossBar.setVisible(false);
+            bossBar.removeAll();
+            bossBar = null;
+            return true;
+        }
+        return false;
+    }
+
+    public void initBossBar(Player p){
+        bossBar = Bukkit.createBossBar(ChatColor.translateAlternateColorCodes('&', name + ": &c" + xp + " &4/ " + max_xp), BarColor.YELLOW, BarStyle.SOLID);
+        bossBar.addPlayer(p);
+        bossBar.setProgress(0);
+        bossBar.setVisible(true);
+    }
+    public void updateBossBar(){
+        bossBar.setTitle(ChatColor.translateAlternateColorCodes('&', name + ": &c" + xp + " &4/ " + max_xp));
+        bossBar.setProgress(xp*1D/max_xp);
     }
 }

@@ -105,7 +105,7 @@ public class MainSlayerGui implements Listener {
         }
         SlayerXp player = SlayerXpStorage.createPlayer(p, menu);
         int plvl = (int) player.getLevel();
-        int pxp = (int) p.getExp();
+        int pxp = (int) player.getXp();
         int maxlvl = 0;
         int maxxp = 0;
         try {
@@ -171,7 +171,7 @@ public class MainSlayerGui implements Listener {
             } else {
                 String s = currentmenu[e.getRawSlot()];
                 if (plugin.allSlayers.containsKey(s)) {
-                    SlayerData data = new SlayerData(plugin.allSlayers.get(s));
+                    SlayerData data = new SlayerData(plugin.allSlayers.get(s), p);
                     if (!plugin.activeSlayer.containsKey(p)) {
                         if (data.canStart(p)) {
                             plugin.activeSlayer.put(p, data);

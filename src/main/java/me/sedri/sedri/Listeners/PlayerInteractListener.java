@@ -8,7 +8,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -21,9 +24,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-
-import java.util.Set;
-import java.util.UUID;
 
 public class PlayerInteractListener implements Listener {
 
@@ -95,30 +95,27 @@ public class PlayerInteractListener implements Listener {
         if (plugin.activeSlayer.containsKey(p)){
             SlayerData slayer = plugin.activeSlayer.get(p);
             if (!slayer.isBossSpawned()) {
-                Set<EntityType> keys = slayer.getMobs().keySet();
-                for (EntityType key : keys) {
-                    if (e.getEntity().getType().equals(key)) {
-                        slayer.addXp(slayer.getMobs().get(key));
-                        p.sendMessage("mob killed " + e.getEntity().toString());
-                        p.sendMessage(String.valueOf(slayer.getXp()));
-                        break;
-
-                    }
+                Integer xp = slayer.getMobs().get(e.getEntity().getType());
+                if (xp != null) {
+                    slayer.addXp(xp);
                 }
-                if (slayer.getXp() >= slayer.getMax_xp()) {
-                    p.sendMessage(slayer.getXp() + "/" + slayer.getMax_xp());
+                if (slayer.reachedMaxXp()) {
                     slayer.setBossSpawned(true);
                     EntityType bosstype = slayer.getBoss();
-                    p.sendMessage("spawning boss " + bosstype);
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYour " + slayer.getName() + " &cis spawning!"));
                     e.getEntity().getWorld().spawnEntity(e.getEntity().getLocation(), bosstype);
                 }
             } else {
                 p.sendMessage(slayer.getBoss().toString());
                 if (e.getEntity().getType().equals(slayer.getBoss())){
-                    p.sendMessage("you gained " + slayer.getReward() + " xp");
-                    plugin.activeSlayer.remove(p);
-                    SlayerXp slayerplayer = SlayerXpStorage.createPlayer(p, slayer.getTier());
+                    String tier = slayer.getTier().split(":")[0];
+                    SlayerXp slayerplayer = SlayerXpStorage.createPlayer(p, tier);
                     slayerplayer.addXp(slayer.getReward());
+                    String bar = slayerplayer.getBar();
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2&lSLAYER DEFEATED"));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have gained &e" + slayer.getReward() + " " +slayer.getSlayername() + " &aXP!"));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', bar));
+                    plugin.activeSlayer.remove(p);
                     SlayerXpStorage.updatePlayerSlayerXp(slayerplayer);
                 }
             }

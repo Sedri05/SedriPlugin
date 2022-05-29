@@ -3,7 +3,6 @@ package me.sedri.sedri.Data;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import me.sedri.sedri.SedriPlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.*;
@@ -13,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class SlayerXpStorage {
-    private static HashMap<String, ArrayList<SlayerXp>> SlayerList = new HashMap<>();
+    public static HashMap<String, ArrayList<SlayerXp>> SlayerList = new HashMap<>();
 
     public static SlayerXp createPlayer(Player p, String slayer){
         createSlayerType(slayer);
@@ -67,11 +66,11 @@ public class SlayerXpStorage {
         gson.toJson(SlayerList, writer);
         writer.flush();
         writer.close();
-        Bukkit.getLogger().info("Slayers saved.");
+        SedriPlugin.getPlugin().getLogger().info("Slayers saved.");
     }
     public static void loadPlayerSlayerXp() throws IOException {
         Gson gson = new Gson();
-        File file = new File(SedriPlugin.getPlugin().getDataFolder().getAbsolutePath() + "/notes.json");
+        File file = new File(SedriPlugin.getPlugin().getDataFolder().getAbsolutePath() + "/slayers.json");
         if (file.exists()){
             Reader reader = new FileReader(file);
             SlayerList = new HashMap<>();
@@ -86,7 +85,9 @@ public class SlayerXpStorage {
                 }
                 SlayerList.put(key, ea);
             }
-            Bukkit.getLogger().info("Slayers loaded.");
+            SedriPlugin.getPlugin().getLogger().info("Slayers loaded.");
+        } else {
+            SedriPlugin.getPlugin().getLogger().severe("Slayer storage File not found");
         }
     }
 }

@@ -85,4 +85,16 @@ public class SlayerXp {
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
+
+    public String getBar(){
+        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levelist == null) return "UNIDENTIFIED - ERROR";
+        if(level >= levelist.size()+1)return "&a&lMAX LEVEL";
+        Integer lvlxp = levelist.get((int)level);
+        String str = "-------------------------";
+        for (int i = 0; i<=(int)xp/lvlxp*25; i++){
+            str = str.replace("-", "&a-");
+        }
+        return str + "&e" + (int)xp/lvlxp*100 + "%";
+    }
 }

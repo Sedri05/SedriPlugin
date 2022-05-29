@@ -25,8 +25,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
-
 
 public final class SedriPlugin extends JavaPlugin{
     private static SedriPlugin plugin;
@@ -80,7 +83,11 @@ public final class SedriPlugin extends JavaPlugin{
         saveResource("slayers.yml", false);
         SlayerConfig.setup();
         readySlayers();
-
+        try {
+            initDatabase();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
 
     }
 
@@ -92,6 +99,27 @@ public final class SedriPlugin extends JavaPlugin{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void initDatabase() throws SQLException {
+        Connection conn;
+        ConfigurationSection database = getConfig().getConfigurationSection("database");
+        if (database == null) return;
+        String url = "jdbc:sqlite:plugins/Sedri/slayers.db";
+        conn = DriverManager.getConnection(url);
+        if (conn == null) {
+            getLogger().severe("SQL database offline");
+            return;
+        }
+        Statement statement = conn.createStatement();
+        String sql = "CREATE TABLE IF NOT EXISTS test(i int)";
+        try {
+            statement.execute(sql);
+        } finally {
+            statement.close();
+            conn.close();
+        }
+        getLogger().info("Done");
     }
 
     private boolean setupEconomy() {
@@ -161,11 +189,11 @@ public final class SedriPlugin extends JavaPlugin{
             }
             ItemStack item = new ItemStack(mat);
             ItemMeta meta = item.getItemMeta();
-            try {
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', slayer.getString("name")));
-            } catch (NullPointerException e){
-                meta.setDisplayName(key);
+            String slayername = slayer.getString("name");
+            if (slayername == null){
+                slayername = key;
             }
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', slayername));
             List<String> lorelist = slayer.getStringList("description");
             ArrayList<String> lore = new ArrayList<>();
             for (String loreline : lorelist) {
@@ -211,13 +239,11 @@ public final class SedriPlugin extends JavaPlugin{
                 }
                 item = new ItemStack(mat);
                 meta = item.getItemMeta();
-                String name = tierkey;
-                try {
-                    name = tier.getString("name");
-                    meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-                } catch (NullPointerException e){
-                    meta.setDisplayName(tierkey);
+                String name = tier.getString("name");
+                if (name == null) {
+                    name = tierkey;
                 }
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
                 lorelist = tier.getStringList("description");
                 lore = new ArrayList<>();
                 for (String loreline : lorelist) {
@@ -239,7 +265,7 @@ public final class SedriPlugin extends JavaPlugin{
                 String id = key + ":" + tierkey;
                 if (type != null) {
                     slayersubmenu.put(id, item);
-                    SlayerData data = new SlayerData(mobs, type, max_xp, reward_xp, key, name, lore, perm, money);
+                    SlayerData data = new SlayerData(mobs, type, max_xp, reward_xp, id, name, slayername, lore, perm, money);
                     allSlayers.put(id, data);
                 }
             }
