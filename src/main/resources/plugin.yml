@@ -29,5 +29,7 @@ commands:
     permission: "sedri.togglepvp"
   test:
     description: no
+  slayer:
+    description: hello
 #  gay:
 #    description: "e a sports"

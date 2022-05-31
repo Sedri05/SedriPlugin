@@ -164,6 +164,7 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpToggle());
         getCommand("test").setExecutor(new testcommand());
+        getCommand("slayer").setExecutor(new SlayerCommand());
     }
 
     public void readySlayers(){
@@ -179,6 +180,7 @@ public final class SedriPlugin extends JavaPlugin{
         mainslayermenu[mainslayermenu.length-5] = MainSlayerGui.createGuiItem(Material.BARRIER, "&cClose");
         int i = 10;
         for (String key: keys){
+            SlayerCommand.keylist.add(key);
             ConfigurationSection slayer = SlayerConfig.get().getConfigurationSection(key);
             if (slayer == null) continue;
             Material mat = Material.ZOMBIE_HEAD;
@@ -298,6 +300,16 @@ public final class SedriPlugin extends JavaPlugin{
         User user = luckPerms.getUserManager().getUser(uuid);
         if (user != null) {
             user.data().add(Node.builder(permission).build());
+            luckPerms.getUserManager().saveUser(user);
+        }
+    }
+
+    public void removePermission(UUID uuid, String permission) {
+        // remove the permission
+        LuckPerms luckPerms = LuckPermsProvider.get();
+        User user = luckPerms.getUserManager().getUser(uuid);
+        if (user != null) {
+            user.data().remove(Node.builder(permission).build());
             luckPerms.getUserManager().saveUser(user);
         }
     }

@@ -151,6 +151,7 @@ public class MainSlayerGui implements Listener {
     public void onInventoryClick(final InventoryClickEvent e) {
         if (!e.getInventory().equals(inv)) return;
         if(e.getRawSlot() >= inv.getSize() && e.getClick() != ClickType.DOUBLE_CLICK) return;
+        e.setCancelled(true);
         final Player p = (Player) e.getWhoClicked();
         if (menu == null || menu.equals("main")){
             if (e.getRawSlot() == inv.getSize()-5) {
@@ -201,7 +202,6 @@ public class MainSlayerGui implements Listener {
             }
         }
         p.updateInventory();
-        e.setCancelled(true);
     }
 
     // Cancel dragging in our inventory

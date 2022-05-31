@@ -19,7 +19,6 @@ public class SlayerGuiCommand implements CommandExecutor {
                 inv = new MainSlayerGui(p, args[0]);
             }
             inv.openInventory();
-            new SlayerXp(p.getUniqueId(), "test", 0, 0);
         }
         return true;
     }

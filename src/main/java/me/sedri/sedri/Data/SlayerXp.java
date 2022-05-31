@@ -34,7 +34,11 @@ public class SlayerXp {
     }
 
     public void incrementLevel(){
+        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levelist == null) return;
+        if(level >= levelist.size()) return;
         SlayerLevel lvl = SedriPlugin.getPlugin().Levels.get(slayer).get((int)level);
+        if (lvl == null) return;
         Player p = SedriPlugin.getPlugin().getServer().getPlayer(this.uuid);
         this.level++;
         if (p != null) {
@@ -49,7 +53,18 @@ public class SlayerXp {
             }
         }
     }
-
+    public void decrementLevel(){
+        if (level == 0) return;
+        level--;
+        SlayerLevel lvl = SedriPlugin.getPlugin().Levels.get(slayer).get((int)level);
+        if (lvl == null) return;
+        Player p = SedriPlugin.getPlugin().getServer().getPlayer(this.uuid);
+        if (p != null) {
+            for (String perm : lvl.getPermissions()) {
+                SedriPlugin.getPlugin().removePermission(uuid, perm);
+            }
+        }
+    }
     public float getXp() {
         return xp;
     }
@@ -59,18 +74,29 @@ public class SlayerXp {
     }
 
     public void addXp(int xp){
-        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
-        if (levelist == null) return;
-        if(level >= levelist.size()) {
-            this.xp += xp;
-            return;
-        }
-        if (this.xp + xp >= levelist.get((int) level)) {
-            this.xp = this.xp + xp - levelist.get((int) level);
+        ArrayList<Integer> levellist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levellist == null) return;
+        while (level < levellist.size() && this.xp + xp >= levellist.get((int) level)) {
+            xp = xp - levellist.get((int) level);
+            this.xp = 0;
             incrementLevel();
-            return;
         }
         this.xp += xp;
+    }
+    public void removeXp(int xp){
+        ArrayList<Integer> levelist = SedriPlugin.getPlugin().LevelList.get(slayer);
+        if (levelist == null) return;
+        while (this.xp - xp < 0) {
+            if (level == 0) {
+                this.xp = 0;
+                return;
+            }
+            int maxxp = levelist.get((int) level - 1);
+            decrementLevel();
+            xp -= this.xp;
+            this.xp = maxxp;
+        }
+        this.xp -= xp;
     }
     public String getSlayer() {
         return slayer;
