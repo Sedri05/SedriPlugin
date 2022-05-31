@@ -172,14 +172,17 @@ public class SlayerData{
 
     public boolean reachedMaxXp(){
         if (xp >= max_xp){
-            bossBar.setVisible(false);
-            bossBar.removeAll();
-            bossBar = null;
+            removeBossBar();
             return true;
         }
         return false;
     }
 
+    public void removeBossBar(){
+        bossBar.setVisible(false);
+        bossBar.removeAll();
+        bossBar = null;
+    }
     public void initBossBar(Player p){
         bossBar = Bukkit.createBossBar(ChatColor.translateAlternateColorCodes('&', name + ": &c" + xp + " &4/ " + max_xp), BarColor.YELLOW, BarStyle.SOLID);
         bossBar.addPlayer(p);

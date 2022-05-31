@@ -176,8 +176,8 @@ public class MainSlayerGui implements Listener {
             } else {
                 String s = currentmenu[e.getRawSlot()];
                 if (plugin.allSlayers.containsKey(s)) {
-                    SlayerData data = new SlayerData(plugin.allSlayers.get(s), p);
                     if (!plugin.activeSlayer.containsKey(p)) {
+                        SlayerData data = new SlayerData(plugin.allSlayers.get(s), p);
                         if (data.canStart(p)) {
                             plugin.activeSlayer.put(p, data);
                             p.closeInventory();
@@ -195,8 +195,11 @@ public class MainSlayerGui implements Listener {
                             p.sendMessage(ChatColor.RED + "You can't start this slayer!");
                         }
                     } else {
+                        plugin.activeSlayer.get(p).removeBossBar();
                         plugin.activeSlayer.remove(p);
-                        p.sendMessage(ChatColor.RED + "You're previous Slayer has been canceled.");
+                        p.sendMessage("");
+                        p.sendMessage(ChatColor.RED + "Your previous Slayer has been canceled.");
+                        p.sendMessage("");
                     }
                 }
             }
