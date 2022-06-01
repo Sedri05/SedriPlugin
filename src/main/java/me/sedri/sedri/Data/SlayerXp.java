@@ -2,6 +2,7 @@ package me.sedri.sedri.Data;
 
 import me.sedri.sedri.SedriPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -11,8 +12,8 @@ import java.util.UUID;
 public class SlayerXp {
     private float xp = 0;
     private float level = 0;
-    private String slayer;
-    private UUID uuid;
+    private final String slayer;
+    private final UUID uuid;
 
     public SlayerXp(UUID uuid, String slayer, float xp, float level) {
         this.uuid = uuid;
@@ -42,7 +43,9 @@ public class SlayerXp {
         Player p = SedriPlugin.getPlugin().getServer().getPlayer(this.uuid);
         this.level++;
         if (p != null) {
-            p.sendMessage("You have leveled up to level" + this.level);
+            p.sendMessage("");
+            p.sendMessage(ChatColor.DARK_GREEN + "You have reached level " + ChatColor.YELLOW + Math.round(this.level));
+            p.sendMessage("");
             for (String perm: lvl.getPermissions()){
                 SedriPlugin.getPlugin().addPermission(uuid, perm);
             }
@@ -102,16 +105,8 @@ public class SlayerXp {
         return slayer;
     }
 
-    public void setSlayer(String slayer) {
-        this.slayer = slayer;
-    }
-
     public UUID getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public String getBar(){
