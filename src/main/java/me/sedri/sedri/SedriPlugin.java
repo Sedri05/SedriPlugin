@@ -119,7 +119,6 @@ public final class SedriPlugin extends JavaPlugin{
             statement.close();
             conn.close();
         }
-        getLogger().info("Done");
     }
 
     private boolean setupEconomy() {
@@ -165,6 +164,7 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpToggle());
         getCommand("test").setExecutor(new testcommand());
         getCommand("slayer").setExecutor(new SlayerCommand());
+        getCommand("ssudo").setExecutor(new SudeCommand());
     }
 
     public void readySlayers(){

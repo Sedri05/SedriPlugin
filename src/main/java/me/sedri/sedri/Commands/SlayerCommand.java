@@ -22,18 +22,15 @@ public class SlayerCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player p)) return false;
         MainSlayerGui inv;
-        if (args.length == 0) {
+        if (args.length == 0 || args[0].equalsIgnoreCase("open")) {
             inv = new MainSlayerGui(p);
             inv.openInventory();
             return true;
         }
-
+        if (!p.hasPermission("sedri.editslayer")){
+            return false;
+        }
         switch (args[0]) {
-            case "open" -> {
-                inv = new MainSlayerGui(p);
-                inv.openInventory();
-            }
-
             case "level" -> {
                 if (!(args.length >= 4)){
                     sender.sendMessage(ChatColor.RED + "Invallid command");
@@ -92,21 +89,26 @@ public class SlayerCommand implements CommandExecutor, TabCompleter {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args[0].equalsIgnoreCase("level") || args[0].equalsIgnoreCase("xp")){
-            if (args.length == 2){
-                return Arrays.asList("add", "remove");
-            } else if (args.length == 3 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
-                return keylist;
-            } else if (args.length == 4) {
-                return List.of("<int>");
-            } else if (args.length == 5){
-                return getOnlinePlayerNames();
+        List<String> ls = new ArrayList<>(List.of("open"));
+        if (sender.hasPermission("sedri.editslayer")){
+            if (args[0].equalsIgnoreCase("level") || args[0].equalsIgnoreCase("xp")) {
+                if (args.length == 2) {
+                    return Arrays.asList("add", "remove");
+                } else if (args.length == 3 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
+                    return keylist;
+                } else if (args.length == 4) {
+                    return List.of("<int>");
+                } else if (args.length == 5) {
+                    return getOnlinePlayerNames();
+                }
+                return List.of();
             }
-            return List.of();
+            ls.add("level");
+            ls.add("xp");
         } else if (args[0].equalsIgnoreCase("open")){
             return List.of();
         }
-        return Arrays.asList("open", "xp", "level");
+        return ls;
 
     }
 }

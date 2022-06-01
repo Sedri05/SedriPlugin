@@ -31,5 +31,7 @@ commands:
     description: no
   slayer:
     description: hello
+  ssudo:
+    description: you dont get to do this command L
 #  gay:
 #    description: "e a sports"
