@@ -165,6 +165,7 @@ public final class SedriPlugin extends JavaPlugin{
         getCommand("test").setExecutor(new testcommand());
         getCommand("slayer").setExecutor(new SlayerCommand());
         getCommand("ssudo").setExecutor(new SudeCommand());
+        getCommand("hyperion").setExecutor(new HyperionCommand());
     }
 
     public void readySlayers(){
@@ -312,5 +313,9 @@ public final class SedriPlugin extends JavaPlugin{
             user.data().remove(Node.builder(permission).build());
             luckPerms.getUserManager().saveUser(user);
         }
+    }
+
+    public String TACC(String str){
+        return ChatColor.translateAlternateColorCodes('&', str);
     }
 }

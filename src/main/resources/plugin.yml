@@ -4,6 +4,8 @@ main: me.sedri.sedri.SedriPlugin
 api-version: 1.18
 depend:
   - LuckPerms
+softdepend:
+  - WorldGuard
 commands:
   keepgamemode:
     description: "Keeps your gamemode from the last world"
@@ -33,5 +35,7 @@ commands:
     description: hello
   ssudo:
     description: you dont get to do this command L
+  hyperion:
+    description: hello i go boom
 #  gay:
 #    description: "e a sports"

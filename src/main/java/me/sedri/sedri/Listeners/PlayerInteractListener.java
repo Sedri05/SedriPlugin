@@ -4,43 +4,48 @@ import me.sedri.sedri.Data.SlayerData;
 import me.sedri.sedri.Data.SlayerXp;
 import me.sedri.sedri.Data.SlayerXpStorage;
 import me.sedri.sedri.SedriPlugin;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class PlayerInteractListener implements Listener {
 
     private final SedriPlugin plugin = SedriPlugin.getPlugin();
+
+    private ArrayList<Player> reduceDamage = new ArrayList<>();
 
     @EventHandler
     public void playerInteract(PlayerInteractEvent e){
         Player p = e.getPlayer();
         Action a = e.getAction();
 
-        if (!(a.equals(Action.PHYSICAL)) && p.hasPermission("sedri.tpstick")){
+        if (!(a.equals(Action.PHYSICAL))){
             ItemStack item = p.getInventory().getItemInMainHand();
             ItemMeta meta = item.getItemMeta();
             if (meta != null){
                 PersistentDataContainer data = meta.getPersistentDataContainer();
                 String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "id"), PersistentDataType.STRING);
-                if (id != null && id.equals("tpstick")) {
+                if (id == null) return;
+                if (id.equals("tpstick")) {
                     int d = 8;
                     boolean c = true;
                     if (SedriPlugin.getPlugin().distance.containsKey(p)) {
@@ -55,20 +60,83 @@ public class PlayerInteractListener implements Listener {
                         d--;
                         trace = p.rayTraceBlocks(d);
                     }
-                    dir.normalize();
-                    dir.multiply(d);
-                    loc.add(dir);
-                    Location loc2 = loc;
-                    loc2.setY(loc2.getY()-1);
-                    if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR){
-                        loc.setY(loc.getY()+2);
-                    }
                     if (d == 0 && c) {
                         p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
                     } else {
+                        dir.normalize();
+                        dir.multiply(d);
+                        loc.add(dir);
+                        Location loc2 = loc;
+                        loc2.setY(Math.round(loc2.getY()+1));
+                        if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR){
+                            loc.setY(Math.round(loc.getY() + 1));
+                        }
+                        if (loc.getBlock().getBlockData().getMaterial() != Material.AIR){
+                            loc.setY(Math.round(loc.getY() + 1));
+                        }
                         p.teleport(loc);
                     }
                     e.setCancelled(true);
+                } else if (a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK) && id.equals("hyperion")){
+                    Location loc = p.getLocation();
+                    Vector dir = loc.getDirection();
+                    int d = 10;
+                    RayTraceResult trace = p.rayTraceBlocks(d);
+                    while (trace != null){
+                        d--;
+                        trace = p.rayTraceBlocks(d);
+                    }
+                    if (d == 0) {
+                        p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
+                    } else {
+                        dir.normalize();
+                        dir.multiply(d);
+                        loc.add(dir);
+                        Location loc2 = loc;
+                        loc2.setY(Math.round(loc2.getY()+1));
+                        if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR){
+                            loc.setY(Math.round(loc.getY() + 1));
+                        }
+                        if (loc.getBlock().getBlockData().getMaterial() != Material.AIR){
+                            loc.setY(Math.round(loc.getY() + 1));
+                        }
+                        p.teleport(loc);
+                    }
+                    Collection<Entity> entities = p.getWorld().getNearbyEntities(p.getLocation(), 4.5, 4.5, 4.5);
+
+                    for (Entity entity : entities) {
+                        if (entity.equals(p)) {
+                            continue;
+                        }
+                        if (!(entity instanceof LivingEntity)) {
+                            continue;
+                        }
+
+                        ((LivingEntity) entity).damage(20000);
+                    }
+                    p.spawnParticle(Particle.EXPLOSION_LARGE, p.getLocation(), 10);
+                    p.playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.15f, 1);
+                    if (!reduceDamage.contains(p)) {
+                        double health = Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
+                        p.setAbsorptionAmount(health / 2);
+                        try {
+                            reduceDamage.add(p);
+                        } finally {
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    double abs = p.getAbsorptionAmount()/2;
+                                    p.setAbsorptionAmount(0);
+                                    try {
+                                        p.setHealth(p.getHealth() + abs);
+                                    } catch (IllegalArgumentException exception){
+                                        p.setHealth(p.getMaxHealth());
+                                    }
+                                    reduceDamage.remove(p);
+                                }
+                            }.runTaskLater(plugin, 100);
+                        }
+                    }
                 }
             }
         }
@@ -136,6 +204,15 @@ public class PlayerInteractListener implements Listener {
                 if (SedriPlugin.getPlugin().pvpallowed.contains(p)){
                     e.setCancelled(false);
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerDamageEvent(EntityDamageEvent e){
+        if (e.getEntity() instanceof Player p){
+            if (reduceDamage.contains(p)){
+                e.setDamage(e.getDamage()*0.9);
             }
         }
     }
