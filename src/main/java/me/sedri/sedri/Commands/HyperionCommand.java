@@ -71,6 +71,6 @@ public class HyperionCommand implements CommandExecutor {
     }
 
     private String TACC(String str){
-        return SedriPlugin.getPlugin().TACC(str);
+        return SedriPlugin.TACC(str);
     }
 }

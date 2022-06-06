@@ -6,7 +6,9 @@ import me.sedri.sedri.Data.SlayerXpStorage;
 import me.sedri.sedri.SedriPlugin;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -14,6 +16,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -24,7 +27,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Objects;
 
 public class PlayerInteractListener implements Listener {
@@ -33,72 +35,105 @@ public class PlayerInteractListener implements Listener {
 
     private ArrayList<Player> reduceDamage = new ArrayList<>();
 
+    private ArrayList<Player> canHyp = new ArrayList<>();
+
     @EventHandler
     public void playerInteract(PlayerInteractEvent e){
+        int k = 0;
         Player p = e.getPlayer();
         Action a = e.getAction();
-
-        if (!(a.equals(Action.PHYSICAL))){
+        if (e.getHand() == EquipmentSlot.HAND) {
             ItemStack item = p.getInventory().getItemInMainHand();
             ItemMeta meta = item.getItemMeta();
-            if (meta != null){
+            if (meta != null) {
                 PersistentDataContainer data = meta.getPersistentDataContainer();
                 String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "id"), PersistentDataType.STRING);
                 if (id == null) return;
-                if (id.equals("tpstick")) {
-                    int d = 8;
-                    boolean c = true;
-                    if (SedriPlugin.getPlugin().distance.containsKey(p)) {
-                        d = Integer.parseInt(SedriPlugin.getPlugin().distance.get(p).get(0));
-                        c = Boolean.parseBoolean(SedriPlugin.getPlugin().distance.get(p).get(1));
-                    }
-                    Location loc = p.getLocation();
-                    Vector dir = loc.getDirection();
+                if (!(a.equals(Action.PHYSICAL))) {
+                    if (id.equals("tpstick")) {
+                        int d = 8;
+                        boolean c = true;
+                        if (SedriPlugin.getPlugin().distance.containsKey(p)) {
+                            d = Integer.parseInt(SedriPlugin.getPlugin().distance.get(p).get(0));
+                            c = Boolean.parseBoolean(SedriPlugin.getPlugin().distance.get(p).get(1));
+                        }
+                        Location loc = p.getLocation();
+                        Vector dir = loc.getDirection();
 
-                    RayTraceResult trace = p.rayTraceBlocks(d);
-                    while (trace != null && c){
-                        d--;
-                        trace = p.rayTraceBlocks(d);
-                    }
-                    if (d == 0 && c) {
-                        p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
-                    } else {
+                        RayTraceResult trace = p.rayTraceBlocks(d);
+                        while (trace != null && c) {
+                            d--;
+                            trace = p.rayTraceBlocks(d);
+                        }
                         dir.normalize();
                         dir.multiply(d);
                         loc.add(dir);
-                        Location loc2 = loc;
-                        loc2.setY(Math.round(loc2.getY()+1));
-                        if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR){
-                            loc.setY(Math.round(loc.getY() + 1));
+                        if (d == 0 && c) {
+                            p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
+                        } else if (c){
+                            loc.setX(Math.floor(loc.getX())+0.5);
+                            loc.setZ(Math.floor(loc.getZ())+0.5);
+                            Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+                            loc2.setY(loc2.getY() + 1);
+                            if (p.getLocation().getY() > loc.getY()) {
+                                if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR) {
+                                    loc.setY(Math.round(loc.getY() + 1));
+                                }
+                                if (loc.getBlock().getBlockData().getMaterial() != Material.AIR) {
+                                    loc.setY(Math.round(loc.getY() + 1));
+                                }
+                            } else {
+                                if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR) {
+                                    loc.setY(Math.round(loc.getY() - 2));
+                                }
+                            }
+                            p.teleport(loc);
                         }
-                        if (loc.getBlock().getBlockData().getMaterial() != Material.AIR){
-                            loc.setY(Math.round(loc.getY() + 1));
-                        }
-                        p.teleport(loc);
                     }
+                }
+                if ((a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK))
+                        && id.equals("hyperion") && !canHyp.contains(p)) {
                     e.setCancelled(true);
-                } else if (a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK) && id.equals("hyperion")){
+                    try {
+                        canHyp.add(p);
+                    } finally {
+                        new BukkitRunnable(){
+                            @Override
+                            public void run() {
+                                canHyp.remove(p);
+                            }
+                        }.runTaskLater(plugin, 2);
+                    }
                     Location loc = p.getLocation();
                     Vector dir = loc.getDirection();
                     int d = 10;
                     RayTraceResult trace = p.rayTraceBlocks(d);
-                    while (trace != null){
+                    while (trace != null) {
                         d--;
                         trace = p.rayTraceBlocks(d);
                     }
                     if (d == 0) {
                         p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
                     } else {
-                        dir.normalize();
-                        dir.multiply(d);
+                        dir.normalize().multiply(d);
                         loc.add(dir);
-                        Location loc2 = loc;
-                        loc2.setY(Math.round(loc2.getY()+1));
-                        if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR){
-                            loc.setY(Math.round(loc.getY() + 1));
-                        }
-                        if (loc.getBlock().getBlockData().getMaterial() != Material.AIR){
-                            loc.setY(Math.round(loc.getY() + 1));
+                        loc.setX(Math.floor(loc.getX())+0.5);
+                        loc.setZ(Math.floor(loc.getZ())+0.5);
+                        Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
+                        if (p.getLocation().getY() > loc.getY()) {
+                            if (loc2.getBlock().getType() != Material.AIR) {
+                                loc.setY(Math.round(loc.getY() + 1));
+                            }
+                            if (loc.getBlock().getType() != Material.AIR) {
+                                loc.setY(Math.round(loc.getY() + 1));
+                            }
+                        } else {
+                            if (loc2.getBlock().getType() != Material.AIR) {
+                                loc.setY(Math.round(loc.getY() - 2));
+                                if (loc.getBlock().getType() != Material.AIR){
+                                    loc.setY(loc.getY()+3);
+                                }
+                            }
                         }
                         p.teleport(loc);
                     }
@@ -125,11 +160,11 @@ public class PlayerInteractListener implements Listener {
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
-                                    double abs = p.getAbsorptionAmount()/2;
+                                    double abs = p.getAbsorptionAmount() / 2;
                                     p.setAbsorptionAmount(0);
                                     try {
                                         p.setHealth(p.getHealth() + abs);
-                                    } catch (IllegalArgumentException exception){
+                                    } catch (IllegalArgumentException exception) {
                                         p.setHealth(p.getMaxHealth());
                                     }
                                     reduceDamage.remove(p);
@@ -138,20 +173,14 @@ public class PlayerInteractListener implements Listener {
                         }
                     }
                 }
-            }
-        }
-        if (a.equals(Action.LEFT_CLICK_AIR) || a.equals(Action.LEFT_CLICK_BLOCK) && p.hasPermission("sedri.shorbow")){
-            PersistentDataContainer data = SedriPlugin.getDataMainHand(p);
-            if (data == null){
-                return;
-            }
-
-            String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "id"), PersistentDataType.STRING);
-            if (id != null && id.equals("shortbow")) {
-                Arrow arrow = p.launchProjectile(Arrow.class);
-                arrow.setDamage(100);
-                arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
-                e.setCancelled(true);
+                if (a.equals(Action.LEFT_CLICK_AIR) || a.equals(Action.LEFT_CLICK_BLOCK) && p.hasPermission("sedri.shorbow")) {
+                    if (id.equals("shortbow")) {
+                        Arrow arrow = p.launchProjectile(Arrow.class);
+                        arrow.setDamage(100);
+                        arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+                        e.setCancelled(true);
+                    }
+                }
             }
         }
     }

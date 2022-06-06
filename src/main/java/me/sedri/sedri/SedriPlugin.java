@@ -315,7 +315,7 @@ public final class SedriPlugin extends JavaPlugin{
         }
     }
 
-    public String TACC(String str){
+    public static String TACC(String str){
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 }
