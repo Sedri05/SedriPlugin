@@ -104,7 +104,7 @@ public class PlayerInteractListener implements Listener {
                             }
                         }.runTaskLater(plugin, 2);
                     }
-                    Location loc = p.getLocation();
+                    Location loc = p.getEyeLocation();
                     Vector dir = loc.getDirection();
                     int d = 10;
                     RayTraceResult trace = p.rayTraceBlocks(d);
@@ -117,25 +117,42 @@ public class PlayerInteractListener implements Listener {
                     } else {
                         dir.normalize().multiply(d);
                         loc.add(dir);
+                        /*Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()-1, loc.getZ());
+                        Location loc3 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
+                        p.sendMessage(loc.getBlock().getType()+" " + loc.getY());
+                        p.sendMessage(loc2.getBlock().getType()+" " + loc2.getY());
+                        p.sendMessage(loc3.getBlock().getType()+" " + loc3.getY());
+                        p.sendMessage(SedriPlugin.TACC("&f "));
+                        for (int i = d; i>0; i--) {
+                            if (loc.getBlock().getType() != Material.AIR && loc.getBlock().getType() != Material.WATER) {
+                                if (loc2.getBlock().getType() != Material.AIR && loc2.getBlock().getType() != Material.WATER) {
+                                    dir = loc.getDirection();
+                                    dir.normalize().multiply(-1);
+                                    loc.add(dir);
+                                    loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY() - 1, loc.getZ());
+                                }
+                            } else if (loc3.getBlock().getType() == Material.AIR || loc3.getBlock().getType() == Material.WATER){
+                                loc.setY(loc.getY()+1);
+                                break;
+                            }
+                        }*/
                         loc.setX(Math.floor(loc.getX())+0.5);
                         loc.setZ(Math.floor(loc.getZ())+0.5);
+                        loc.set(Math.floor(loc.getX())+0.5, Math.floor(loc.getY()),Math.floor(loc.getZ())+0.5);
                         Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
-                        if (p.getLocation().getY() > loc.getY()) {
-                            if (loc2.getBlock().getType() != Material.AIR) {
-                                loc.setY(Math.round(loc.getY() + 1));
-                            }
-                            if (loc.getBlock().getType() != Material.AIR) {
-                                loc.setY(Math.round(loc.getY() + 1));
-                            }
+                        p.sendMessage(loc.getY()+"");
+                        p.sendMessage(loc2.getY()+"");
+                        if ((loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER)
+                            && (loc2.getBlock().getType() == Material.AIR || loc2.getBlock().getType() == Material.WATER)) {
+                            p.teleport(loc);
                         } else {
-                            if (loc2.getBlock().getType() != Material.AIR) {
-                                loc.setY(Math.round(loc.getY() - 2));
-                                if (loc.getBlock().getType() != Material.AIR){
-                                    loc.setY(loc.getY()+3);
-                                }
+                            if (p.getLocation().getPitch() < 0) {
+                                loc.setY(loc.getY() - 1);
+                            } else {
+                                loc.setY(loc.getY() + 1);
                             }
+                            p.teleport(loc);
                         }
-                        p.teleport(loc);
                     }
                     Collection<Entity> entities = p.getWorld().getNearbyEntities(p.getLocation(), 4.5, 4.5, 4.5);
 
