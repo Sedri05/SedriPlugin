@@ -1,4 +1,4 @@
-package me.sedri.sedri.Commands;
+package me.sedri.sedri.Commands.items;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -35,13 +35,8 @@ public class TransmissionStick implements CommandExecutor, TabCompleter {
 
                 ItemStack stick = new ItemStack(Material.STICK, 1);
                 ItemMeta meta = stick.getItemMeta();
-                if (meta == null) {
-                    return false;
-                }
-                if (!SedriPlugin.getPlugin().distance.containsKey(p)) {
-                    SedriPlugin.setTransmissionDefault(p);
-                }
-
+                if (meta == null) return false;
+                if (!SedriPlugin.getPlugin().distance.containsKey(p)) SedriPlugin.setTransmissionDefault(p);
                 Multimap<Attribute, AttributeModifier> attr = ArrayListMultimap.create();
                 attr.put(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(UUID.randomUUID(), "generic.attackDamage", 1000000, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND));
                 meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&bTransmission Stick"));

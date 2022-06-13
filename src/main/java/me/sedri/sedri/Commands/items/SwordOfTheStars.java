@@ -1,4 +1,4 @@
-package me.sedri.sedri.Commands;
+package me.sedri.sedri.Commands.items;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -28,9 +28,7 @@ public class SwordOfTheStars implements CommandExecutor {
             if (!p.hasPermission("sedri.swordofthestars"))return false;
             ItemStack item = new ItemStack(Material.WOODEN_SWORD, 1);
             ItemMeta meta = item.getItemMeta();
-            if (meta == null) {
-                return false;
-            }
+            if (meta == null) return false;
             meta.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
             meta.setUnbreakable(true);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);

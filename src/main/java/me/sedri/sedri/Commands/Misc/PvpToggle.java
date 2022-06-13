@@ -1,4 +1,4 @@
-package me.sedri.sedri.Commands;
+package me.sedri.sedri.Commands.Misc;
 
 import me.sedri.sedri.SedriPlugin;
 import org.bukkit.ChatColor;

@@ -6,9 +6,7 @@ import me.sedri.sedri.Data.SlayerXpStorage;
 import me.sedri.sedri.SedriPlugin;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.*;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -35,21 +33,20 @@ public class PlayerInteractListener implements Listener {
 
     private ArrayList<Player> reduceDamage = new ArrayList<>();
 
-    private ArrayList<Player> canHyp = new ArrayList<>();
+    private ArrayList<Player> canTp = new ArrayList<>();
 
     @EventHandler
     public void playerInteract(PlayerInteractEvent e){
-        int k = 0;
         Player p = e.getPlayer();
         Action a = e.getAction();
         if (e.getHand() == EquipmentSlot.HAND) {
             ItemStack item = p.getInventory().getItemInMainHand();
             ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                PersistentDataContainer data = meta.getPersistentDataContainer();
-                String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "id"), PersistentDataType.STRING);
-                if (id == null) return;
-                if (!(a.equals(Action.PHYSICAL))) {
+            if (meta == null) return;
+            PersistentDataContainer data = meta.getPersistentDataContainer();
+            String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "id"), PersistentDataType.STRING);
+            if (id == null) return;
+            if (!(a.equals(Action.PHYSICAL))) {
                     if (id.equals("tpstick")) {
                         int d = 8;
                         boolean c = true;
@@ -73,132 +70,132 @@ public class PlayerInteractListener implements Listener {
                         } else if (c){
                             loc.setX(Math.floor(loc.getX())+0.5);
                             loc.setZ(Math.floor(loc.getZ())+0.5);
-                            Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-                            loc2.setY(loc2.getY() + 1);
-                            if (p.getLocation().getY() > loc.getY()) {
-                                if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR) {
-                                    loc.setY(Math.round(loc.getY() + 1));
-                                }
-                                if (loc.getBlock().getBlockData().getMaterial() != Material.AIR) {
-                                    loc.setY(Math.round(loc.getY() + 1));
-                                }
-                            } else {
-                                if (loc2.getBlock().getBlockData().getMaterial() != Material.AIR) {
-                                    loc.setY(Math.round(loc.getY() - 2));
+                            loc.set(Math.floor(loc.getX())+0.5, Math.floor(loc.getY()),Math.floor(loc.getZ())+0.5);
+                            Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
+                            if (!((loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER)
+                                    && (loc2.getBlock().getType() == Material.AIR || loc2.getBlock().getType() == Material.WATER))) {
+                                if (p.getLocation().getPitch() < 0) {
+                                    loc.setY(loc.getY() - 1);
+                                } else {
+                                    loc.setY(loc.getY() + 1);
                                 }
                             }
-                            p.teleport(loc);
+                        }
+                        p.teleport(loc);
+
+                        return;
+                    }
+                    if (id.equals("beam")){
+                        e.setCancelled(true);
+                        Location loc = p.getEyeLocation();
+                        Vector dir = loc.getDirection();
+                        Particle.DustOptions dust = new Particle.DustOptions(Color.RED, 1);
+
+                        for (int i = 0; i < 40; i++) {
+                            dir.normalize().multiply(0.5);
+                            loc.add(dir);
+                            dir = loc.getDirection();
+                            p.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, dust);
+                        }
+
+                        RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
+                                p.getEyeLocation().getDirection(),
+                                20, 3);
+                        if (result.getHitEntity() instanceof LivingEntity ent){
+                            ent.damage(10);
+                        }
+
+                        return;
+                    }
+            }
+            if ((a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK))
+                    && id.equals("hyperion") && !canTp.contains(p)) {
+                e.setCancelled(true);
+                try {
+                    canTp.add(p);
+                } finally {
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            canTp.remove(p);
+                        }
+                    }.runTaskLater(plugin, 2);
+                }
+                Location loc = p.getEyeLocation();
+                Vector dir = loc.getDirection();
+                int d = 10;
+                RayTraceResult trace = p.rayTraceBlocks(d);
+                while (trace != null) {
+                    d--;
+                    trace = p.rayTraceBlocks(d);
+                }
+                if (d == 0) {
+                    p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
+                } else {
+                    dir.normalize().multiply(d);
+                    loc.add(dir);
+                    loc.setX(Math.floor(loc.getX())+0.5);
+                    loc.setZ(Math.floor(loc.getZ())+0.5);
+                    loc.set(Math.floor(loc.getX())+0.5, Math.floor(loc.getY()),Math.floor(loc.getZ())+0.5);
+                    Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
+                    if (!((loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER)
+                            && (loc2.getBlock().getType() == Material.AIR || loc2.getBlock().getType() == Material.WATER))) {
+                        if (p.getLocation().getPitch() < 0) {
+                            loc.setY(loc.getY() - 1);
+                        } else {
+                            loc.setY(loc.getY() + 1);
                         }
                     }
+                    p.teleport(loc);
                 }
-                if ((a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK))
-                        && id.equals("hyperion") && !canHyp.contains(p)) {
-                    e.setCancelled(true);
+                Collection<Entity> entities = p.getWorld().getNearbyEntities(p.getLocation(), 4.5, 4.5, 4.5);
+
+                for (Entity entity : entities) {
+                    if (entity.equals(p)) {
+                        continue;
+                    }
+                    if (!(entity instanceof LivingEntity)) {
+                        continue;
+                    }
+                    ((LivingEntity) entity).damage(20000);
+                }
+
+                p.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, p.getLocation(), 10);
+                p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.15f, 1);
+                if (!reduceDamage.contains(p)) {
+                    double health = Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
+                    p.setAbsorptionAmount(health / 2);
                     try {
-                        canHyp.add(p);
+                        reduceDamage.add(p);
                     } finally {
-                        new BukkitRunnable(){
+                        new BukkitRunnable() {
                             @Override
                             public void run() {
-                                canHyp.remove(p);
-                            }
-                        }.runTaskLater(plugin, 2);
-                    }
-                    Location loc = p.getEyeLocation();
-                    Vector dir = loc.getDirection();
-                    int d = 10;
-                    RayTraceResult trace = p.rayTraceBlocks(d);
-                    while (trace != null) {
-                        d--;
-                        trace = p.rayTraceBlocks(d);
-                    }
-                    if (d == 0) {
-                        p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
-                    } else {
-                        dir.normalize().multiply(d);
-                        loc.add(dir);
-                        /*Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()-1, loc.getZ());
-                        Location loc3 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
-                        p.sendMessage(loc.getBlock().getType()+" " + loc.getY());
-                        p.sendMessage(loc2.getBlock().getType()+" " + loc2.getY());
-                        p.sendMessage(loc3.getBlock().getType()+" " + loc3.getY());
-                        p.sendMessage(SedriPlugin.TACC("&f "));
-                        for (int i = d; i>0; i--) {
-                            if (loc.getBlock().getType() != Material.AIR && loc.getBlock().getType() != Material.WATER) {
-                                if (loc2.getBlock().getType() != Material.AIR && loc2.getBlock().getType() != Material.WATER) {
-                                    dir = loc.getDirection();
-                                    dir.normalize().multiply(-1);
-                                    loc.add(dir);
-                                    loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY() - 1, loc.getZ());
+                                double abs = p.getAbsorptionAmount() / 2;
+                                p.setAbsorptionAmount(0);
+                                try {
+                                    p.setHealth(p.getHealth() + abs);
+                                } catch (IllegalArgumentException exception) {
+                                    p.setHealth(p.getMaxHealth());
                                 }
-                            } else if (loc3.getBlock().getType() == Material.AIR || loc3.getBlock().getType() == Material.WATER){
-                                loc.setY(loc.getY()+1);
-                                break;
+                                reduceDamage.remove(p);
                             }
-                        }*/
-                        loc.setX(Math.floor(loc.getX())+0.5);
-                        loc.setZ(Math.floor(loc.getZ())+0.5);
-                        loc.set(Math.floor(loc.getX())+0.5, Math.floor(loc.getY()),Math.floor(loc.getZ())+0.5);
-                        Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
-                        p.sendMessage(loc.getY()+"");
-                        p.sendMessage(loc2.getY()+"");
-                        if ((loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER)
-                            && (loc2.getBlock().getType() == Material.AIR || loc2.getBlock().getType() == Material.WATER)) {
-                            p.teleport(loc);
-                        } else {
-                            if (p.getLocation().getPitch() < 0) {
-                                loc.setY(loc.getY() - 1);
-                            } else {
-                                loc.setY(loc.getY() + 1);
-                            }
-                            p.teleport(loc);
-                        }
-                    }
-                    Collection<Entity> entities = p.getWorld().getNearbyEntities(p.getLocation(), 4.5, 4.5, 4.5);
+                        }.runTaskLater(plugin, 100);
 
-                    for (Entity entity : entities) {
-                        if (entity.equals(p)) {
-                            continue;
-                        }
-                        if (!(entity instanceof LivingEntity)) {
-                            continue;
-                        }
-
-                        ((LivingEntity) entity).damage(20000);
-                    }
-                    p.spawnParticle(Particle.EXPLOSION_LARGE, p.getLocation(), 10);
-                    p.playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.15f, 1);
-                    if (!reduceDamage.contains(p)) {
-                        double health = Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue();
-                        p.setAbsorptionAmount(health / 2);
-                        try {
-                            reduceDamage.add(p);
-                        } finally {
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    double abs = p.getAbsorptionAmount() / 2;
-                                    p.setAbsorptionAmount(0);
-                                    try {
-                                        p.setHealth(p.getHealth() + abs);
-                                    } catch (IllegalArgumentException exception) {
-                                        p.setHealth(p.getMaxHealth());
-                                    }
-                                    reduceDamage.remove(p);
-                                }
-                            }.runTaskLater(plugin, 100);
-                        }
                     }
                 }
-                if (a.equals(Action.LEFT_CLICK_AIR) || a.equals(Action.LEFT_CLICK_BLOCK) && p.hasPermission("sedri.shorbow")) {
-                    if (id.equals("shortbow")) {
-                        Arrow arrow = p.launchProjectile(Arrow.class);
-                        arrow.setDamage(100);
-                        arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
-                        e.setCancelled(true);
-                    }
+                return;
+            }
+            if (a.equals(Action.LEFT_CLICK_AIR) || a.equals(Action.LEFT_CLICK_BLOCK) && p.hasPermission("sedri.shorbow")) {
+                if (id.equals("shortbow")) {
+                    Arrow arrow = p.launchProjectile(Arrow.class);
+                    arrow.setDamage(100);
+                    arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
+                    e.setCancelled(true);
+
                 }
             }
+
         }
     }
 
@@ -246,11 +243,22 @@ public class PlayerInteractListener implements Listener {
     @EventHandler
     public void playerHitEvent(EntityDamageByEntityEvent e){
         if (e.getDamager() instanceof Player p){
-            if (e.getEntity() instanceof  Player ent){
+            if (e.getEntity() instanceof  Player){
                 if (SedriPlugin.getPlugin().pvpallowed.contains(p)){
                     e.setCancelled(false);
                 }
             }
+            if (e.isCancelled()) return;
+            ItemStack item = p.getInventory().getItemInMainHand();
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) return;
+            PersistentDataContainer data = meta.getPersistentDataContainer();
+            String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "reforge"), PersistentDataType.STRING);
+            if (id == null) return;
+            if (id.equalsIgnoreCase("test")){
+                e.setDamage(e.getDamage()*1.1);
+            }
+
         }
     }
 

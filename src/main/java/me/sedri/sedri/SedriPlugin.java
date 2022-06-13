@@ -1,6 +1,11 @@
 package me.sedri.sedri;
 
 import me.sedri.sedri.Commands.*;
+import me.sedri.sedri.Commands.Gui.SlayerGuiCommand;
+import me.sedri.sedri.Commands.Gui.TestGuiCommand;
+import me.sedri.sedri.Commands.Misc.PvpToggle;
+import me.sedri.sedri.Commands.Misc.SudeCommand;
+import me.sedri.sedri.Commands.items.*;
 import me.sedri.sedri.Data.SlayerConfig;
 import me.sedri.sedri.Data.SlayerData;
 import me.sedri.sedri.Data.SlayerLevel;
@@ -162,10 +167,12 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("slayergui")).setExecutor(new SlayerGuiCommand());
         Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpToggle());
-        getCommand("test").setExecutor(new testcommand());
-        getCommand("slayer").setExecutor(new SlayerCommand());
-        getCommand("ssudo").setExecutor(new SudeCommand());
-        getCommand("hyperion").setExecutor(new HyperionCommand());
+        Objects.requireNonNull(getCommand("test")).setExecutor(new testcommand());
+        Objects.requireNonNull(getCommand("slayer")).setExecutor(new SlayerCommand());
+        Objects.requireNonNull(getCommand("ssudo")).setExecutor(new SudeCommand());
+        Objects.requireNonNull(getCommand("hyperion")).setExecutor(new HyperionCommand());
+        Objects.requireNonNull(getCommand("rreforge")).setExecutor(new ReforgeCommand());
+        Objects.requireNonNull(getCommand("beamrod")).setExecutor(new BeamRod());
     }
 
     public void readySlayers(){

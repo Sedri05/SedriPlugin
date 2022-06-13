@@ -37,5 +37,9 @@ commands:
     description: you dont get to do this command L
   hyperion:
     description: hello i go boom
+  rreforge:
+    description: rreforge
+  beamrod:
+    description: BEAMMMM
 #  gay:
 #    description: "e a sports"

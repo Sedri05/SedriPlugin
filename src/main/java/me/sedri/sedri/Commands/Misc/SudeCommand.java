@@ -1,4 +1,4 @@
-package me.sedri.sedri.Commands;
+package me.sedri.sedri.Commands.Misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
