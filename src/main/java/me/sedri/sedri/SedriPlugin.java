@@ -154,6 +154,7 @@ public final class SedriPlugin extends JavaPlugin{
         m.registerEvents(new ArrowHitListener(), this);
         m.registerEvents(new SplashPotionListener(), this);
         m.registerEvents(new EnchantListener(), this);
+        m.registerEvents(new AnvilListener(), this);
     }
 
     private void readyCommands(){

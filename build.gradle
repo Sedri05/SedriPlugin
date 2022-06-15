@@ -29,6 +29,7 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
     compileOnly "com.github.MilkBowl:VaultAPI:1.7"
+    compileOnly(files("libs/EcoEnchants v8.81.2.jar"))
 }
 
 def targetJavaVersion = 17
