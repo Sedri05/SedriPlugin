@@ -29,7 +29,7 @@ public class AnvilListener implements Listener {
                 for(String enchants_unsplit: ls) {
                     String[] split = enchants_unsplit.split(":");
                     NamespacedKey old = NamespacedKey.fromString(split[0]);
-                    NamespacedKey nw = NamespacedKey.fromString(split[1]);
+                    NamespacedKey nw = NamespacedKey.fromString(split   [1]);
                     if (old == null || nw == null) continue;
                     if (EnchantChecks.getEnchantsOnItem(left).containsKey(EcoEnchants.getByKey(old))
                             && EnchantChecks.getEnchantsOnItem(right).containsKey(EcoEnchants.getByKey(nw))) {

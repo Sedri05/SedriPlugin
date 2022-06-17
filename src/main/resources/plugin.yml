@@ -5,6 +5,7 @@ api-version: 1.18
 depend:
   - LuckPerms
   - EcoEnchants
+  - Vault
 softdepend:
   - WorldGuard
 commands:
@@ -23,8 +24,6 @@ commands:
     description: "gives a shorbow"
   gui:
     description: "opens a gui"
-  slayergui:
-    description: "opens slayer gui"
   sedrireload:
     description: "reloads the files n shit"
   pvp:
@@ -32,8 +31,6 @@ commands:
     permission: "sedri.togglepvp"
   test:
     description: no
-  slayer:
-    description: hello
   ssudo:
     description: you dont get to do this command L
   hyperion:
