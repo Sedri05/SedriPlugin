@@ -44,66 +44,61 @@ public class PlayerInteractListener implements Listener {
             String id = data.get(new NamespacedKey(SedriPlugin.getPlugin(), "id"), PersistentDataType.STRING);
             if (id == null) return;
             if (!(a.equals(Action.PHYSICAL))) {
-                    if (id.equals("tpstick")) {
-                        int d = 8;
-                        boolean c = true;
-                        if (SedriPlugin.getPlugin().distance.containsKey(p)) {
-                            d = Integer.parseInt(SedriPlugin.getPlugin().distance.get(p).get(0));
-                            c = Boolean.parseBoolean(SedriPlugin.getPlugin().distance.get(p).get(1));
-                        }
-                        Location loc = p.getLocation();
-                        Vector dir = loc.getDirection();
-
-                        RayTraceResult trace = p.rayTraceBlocks(d);
-                        while (trace != null && c) {
-                            d--;
-                            trace = p.rayTraceBlocks(d);
-                        }
-                        dir.normalize();
-                        dir.multiply(d);
-                        loc.add(dir);
-                        if (d == 0 && c) {
-                            p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
-                        } else if (c){
-                            loc.setX(Math.floor(loc.getX())+0.5);
-                            loc.setZ(Math.floor(loc.getZ())+0.5);
-                            loc.set(Math.floor(loc.getX())+0.5, Math.floor(loc.getY()),Math.floor(loc.getZ())+0.5);
-                            Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
-                            if (!((loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER)
-                                    && (loc2.getBlock().getType() == Material.AIR || loc2.getBlock().getType() == Material.WATER))) {
-                                if (p.getLocation().getPitch() < 0) {
-                                    loc.setY(loc.getY() - 1);
-                                } else {
-                                    loc.setY(loc.getY() + 1);
-                                }
+                if (id.equals("tpstick")) {
+                    int d = 8;
+                    boolean c = true;
+                    if (SedriPlugin.getPlugin().distance.containsKey(p)) {
+                        d = Integer.parseInt(SedriPlugin.getPlugin().distance.get(p).get(0));
+                        c = Boolean.parseBoolean(SedriPlugin.getPlugin().distance.get(p).get(1));
+                    }
+                    Location loc = p.getLocation();
+                    Vector dir = loc.getDirection();
+                    RayTraceResult trace = p.rayTraceBlocks(d);
+                    while (trace != null && c) {
+                        d--;
+                        trace = p.rayTraceBlocks(d);
+                    }
+                    dir.normalize();
+                    dir.multiply(d);
+                    loc.add(dir);
+                    if (d == 0 && c) {
+                        p.sendMessage(ChatColor.DARK_GRAY + "You can't teleport there!");
+                    } else if (c){
+                        loc.setX(Math.floor(loc.getX())+0.5);
+                        loc.setZ(Math.floor(loc.getZ())+0.5);
+                        loc.set(Math.floor(loc.getX())+0.5, Math.floor(loc.getY()),Math.floor(loc.getZ())+0.5);
+                        Location loc2 = new Location(loc.getWorld(), loc.getX(), loc.getY()+1, loc.getZ());
+                        if (!((loc.getBlock().getType() == Material.AIR || loc.getBlock().getType() == Material.WATER)
+                                && (loc2.getBlock().getType() == Material.AIR || loc2.getBlock().getType() == Material.WATER))) {
+                            if (p.getLocation().getPitch() < 0) {
+                                loc.setY(loc.getY() - 1);
+                            } else {
+                                loc.setY(loc.getY() + 1);
                             }
                         }
-                        p.teleport(loc);
-
-                        return;
                     }
-                    if (id.equals("beam")){
-                        e.setCancelled(true);
-                        Location loc = p.getEyeLocation();
-                        Vector dir = loc.getDirection();
-                        Particle.DustOptions dust = new Particle.DustOptions(Color.RED, 1);
-
-                        for (int i = 0; i < 40; i++) {
-                            dir.normalize().multiply(0.5);
-                            loc.add(dir);
-                            dir = loc.getDirection();
-                            p.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, dust);
-                        }
-
-                        RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
-                                p.getEyeLocation().getDirection(),
-                                20, 3);
-                        if (result.getHitEntity() instanceof LivingEntity ent){
-                            ent.damage(10);
-                        }
-
-                        return;
+                    p.teleport(loc);
+                    return;
+                }
+                else if (id.equals("beam")){
+                    e.setCancelled(true);
+                    Location loc = p.getEyeLocation();
+                    Vector dir = loc.getDirection();
+                    Particle.DustOptions dust = new Particle.DustOptions(Color.RED, 1);
+                    for (int i = 0; i < 40; i++) {
+                        dir.normalize().multiply(0.5);
+                        loc.add(dir);
+                        dir = loc.getDirection();
+                        p.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, dust);
                     }
+                    RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
+                            p.getEyeLocation().getDirection(),
+                            20, 3);
+                    if (result.getHitEntity() instanceof LivingEntity ent){
+                        ent.damage(10);
+                    }
+                    return;
+                }
             }
             if ((a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK))
                     && id.equals("hyperion") && !canTp.contains(p)) {
@@ -189,10 +184,8 @@ public class PlayerInteractListener implements Listener {
                     arrow.setDamage(100);
                     arrow.setPickupStatus(AbstractArrow.PickupStatus.CREATIVE_ONLY);
                     e.setCancelled(true);
-
                 }
             }
-
         }
     }
 

@@ -8,6 +8,7 @@ depend:
   - Vault
 softdepend:
   - WorldGuard
+  - WorldGuardExtraFlags
 commands:
   keepgamemode:
     description: "Keeps your gamemode from the last world"
