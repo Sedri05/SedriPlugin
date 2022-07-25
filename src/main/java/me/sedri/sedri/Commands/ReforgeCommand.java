@@ -17,19 +17,22 @@ public class ReforgeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (sender instanceof Player p && p.hasPermission("sedri.reforge")) {
-            if (args.length == 0) return false;
-            if (!p.hasPermission("sedri.applereforge")) return false;
-            ItemStack item = p.getInventory().getItemInMainHand();
-            ItemMeta meta = item.getItemMeta();
-            if (meta == null) return false;
-            PersistentDataContainer data = meta.getPersistentDataContainer();
-            data.set(new NamespacedKey(SedriPlugin.getPlugin(), "reforge"), PersistentDataType.STRING, args[0]);
-            item.setItemMeta(meta);
-        } else if (sender instanceof ConsoleCommandSender c){
-            c.sendMessage("hello");
+        if (false) {
+            if (sender instanceof Player p && p.hasPermission("sedri.reforge")) {
+                if (args.length == 0) return false;
+                if (!p.hasPermission("sedri.applereforge")) return false;
+                ItemStack item = p.getInventory().getItemInMainHand();
+                ItemMeta meta = item.getItemMeta();
+                if (meta == null) return false;
+                PersistentDataContainer data = meta.getPersistentDataContainer();
+                data.set(new NamespacedKey(SedriPlugin.getPlugin(), "reforge"), PersistentDataType.STRING, args[0]);
+                item.setItemMeta(meta);
+            } else if (sender instanceof ConsoleCommandSender c) {
+                c.sendMessage("hello");
+            }
+            sender.sendMessage("oi");
+            return false;
         }
-        sender.sendMessage("oi");
         return false;
     }
 }

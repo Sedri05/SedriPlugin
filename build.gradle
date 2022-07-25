@@ -20,16 +20,18 @@ repositories {
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
     maven { url = 'https://jitpack.io' }
+    maven { url "https://maven.enginehub.org/repo/" }
 }
 
 dependencies {
     //implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.29'
     compileOnly 'net.luckperms:api:5.4'
-    compileOnly "io.papermc.paper:paper-api:1.18.1-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT"
     compileOnly 'org.jetbrains:annotations:23.0.0'
     compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
     compileOnly "com.github.MilkBowl:VaultAPI:1.7"
     compileOnly(files("libs/EcoEnchants v8.81.2.jar"))
+    compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.7'
 }
 
 def targetJavaVersion = 17

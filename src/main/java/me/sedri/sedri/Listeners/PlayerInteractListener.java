@@ -1,12 +1,16 @@
 package me.sedri.sedri.Listeners;
 
+import com.sk89q.worldguard.bukkit.event.block.PlaceBlockEvent;
+import com.sk89q.worldguard.bukkit.protection.events.DisallowedPVPEvent;
 import me.sedri.sedri.SedriPlugin;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -20,6 +24,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -83,20 +88,42 @@ public class PlayerInteractListener implements Listener {
                 else if (id.equals("beam")){
                     e.setCancelled(true);
                     Location loc = p.getEyeLocation();
+                    Location modloc = p.getEyeLocation();
                     Vector dir = loc.getDirection();
+                    Vector moddir = modloc.getDirection();
+                    double bana = Math.toRadians(p.getEyeLocation().getYaw() + 90 + 45);
+                    modloc = p.getLocation().add(Math.cos(bana) * .5, 1.5, Math.sin(bana) * .5);
+                    moddir = modloc.getDirection();
                     Particle.DustOptions dust = new Particle.DustOptions(Color.RED, 1);
-                    for (int i = 0; i < 40; i++) {
+                    p.getWorld().spawnParticle(Particle.REDSTONE, modloc, 1, dust);
+                    for (double i = 0; i<30; i += 0.5) {
+                        moddir.normalize().multiply(0.5);
+                        modloc.add(moddir);
+                        moddir = modloc.getDirection();
+                        p.getWorld().spawnParticle(Particle.REDSTONE, modloc, 1, dust);
+                    }
+                    /*for (int i = 0; i < 40; i++) {
                         dir.normalize().multiply(0.5);
                         loc.add(dir);
                         dir = loc.getDirection();
                         p.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, dust);
+                    }*/
+                    double ab = Math.toRadians(p.getEyeLocation().getYaw() + 90 + 45 * (e.getHand() == EquipmentSlot.HAND ? 1 : -1));
+                    loc = p.getLocation().add(Math.cos(ab) * .5, 1.5, Math.sin(ab) * .5);
+                    loc.add(loc.getDirection().normalize().multiply(0.5));
+                    @Nullable RayTraceResult result = loc.getWorld().rayTrace(loc, p.getEyeLocation().getDirection(), 30, FluidCollisionMode.NEVER,  true,0.2, null);
+                    LivingEntity hitEntity = result == null || result.getHitEntity() == null ? null : (LivingEntity) result.getHitEntity();
+                    if (hitEntity != null){
+                        hitEntity.damage(50);
                     }
-                    RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
+                    result.getHitPosition().toLocation(p.getWorld());
+
+                    /*RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
                             p.getEyeLocation().getDirection(),
                             20, 3);
                     if (result.getHitEntity() instanceof LivingEntity ent){
                         ent.damage(10);
-                    }
+                    }*/
                     return;
                 }
             }
@@ -117,7 +144,7 @@ public class PlayerInteractListener implements Listener {
                 Vector dir = loc.getDirection();
                 int d = 10;
                 RayTraceResult trace = p.rayTraceBlocks(d);
-                while (trace != null) {
+                while (trace != null && d != 0) {
                     d--;
                     trace = p.rayTraceBlocks(d);
                 }
@@ -189,7 +216,7 @@ public class PlayerInteractListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void playerHitEvent(EntityDamageByEntityEvent e){
         if (e.getDamager() instanceof Player p){
             if (e.getEntity() instanceof  Player){
@@ -218,5 +245,19 @@ public class PlayerInteractListener implements Listener {
                 e.setDamage(e.getDamage()*0.9);
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public  void WorldGuardPvPEvent(DisallowedPVPEvent e){
+        if (SedriPlugin.getPlugin().pvpallowed.contains(e.getAttacker())){
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlaceBlockEvent(BlockPlaceEvent e){
+        if (e.getBlock().getType() != Material.BARRIER) return;
+        if (e.getPlayer().hasPermission("sedri.place.barrier")) return;
+        e.setCancelled(true);
     }
 }

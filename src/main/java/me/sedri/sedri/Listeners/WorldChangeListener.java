@@ -19,12 +19,12 @@ public class WorldChangeListener implements Listener {
         GameMode gamemode = p.getGameMode();
         if (SedriPlugin.getPlugin().worldgamemodechange.contains(p) && p.hasPermission("sedri.keepgamemode")){
             //Bukkit.getScheduler().runTaskLater(SedriPlugin.getPlugin(), () -> p.setGameMode(gamemode), 5);
-            /*new BukkitRunnable(){
+            new BukkitRunnable(){
                 @Override
                 public void run() {
                     p.setGameMode(gamemode);
                 }
-            }.runTaskLater(SedriPlugin.getPlugin(), 5);*/
+            }.runTaskLater(SedriPlugin.getPlugin(), 5);
         }
     }
 

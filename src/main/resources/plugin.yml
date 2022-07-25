@@ -4,9 +4,9 @@ main: me.sedri.sedri.SedriPlugin
 api-version: 1.18
 depend:
   - LuckPerms
-  - EcoEnchants
   - Vault
 softdepend:
+  - EcoEnchants
   - WorldGuard
   - WorldGuardExtraFlags
 commands:

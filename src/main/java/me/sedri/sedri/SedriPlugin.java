@@ -96,8 +96,9 @@ public final class SedriPlugin extends JavaPlugin{
         m.registerEvents(new WorldChangeListener(), this);
         m.registerEvents(new ArrowHitListener(), this);
         m.registerEvents(new SplashPotionListener(), this);
-        m.registerEvents(new EnchantListener(), this);
-        m.registerEvents(new AnvilListener(), this);
+        //m.registerEvents(new EnchantListener(), this);
+        //m.registerEvents(new AnvilListener(), this);
+        //m.registerEvents(new PlayerHealthListener(), this);
     }
 
     private void readyCommands(){
@@ -107,10 +108,10 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("tpstick")).setExecutor(new TransmissionStick());
         Objects.requireNonNull(getCommand("swordofthestars")).setExecutor(new SwordOfTheStars());
         Objects.requireNonNull(getCommand("maxhealpot")).setExecutor(new FullHealPotion());
-        Objects.requireNonNull(getCommand("gui")).setExecutor(new TestGuiCommand());
-        Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
+        //Objects.requireNonNull(getCommand("gui")).setExecutor(new TestGuiCommand());
+        //Objects.requireNonNull(getCommand("sedrireload")).setExecutor(new Reload());
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpToggle());
-        Objects.requireNonNull(getCommand("test")).setExecutor(new testcommand());
+        //Objects.requireNonNull(getCommand("test")).setExecutor(new testcommand());
         Objects.requireNonNull(getCommand("ssudo")).setExecutor(new SudeCommand());
         Objects.requireNonNull(getCommand("hyperion")).setExecutor(new HyperionCommand());
         Objects.requireNonNull(getCommand("rreforge")).setExecutor(new ReforgeCommand());
