@@ -116,6 +116,9 @@ public final class SedriPlugin extends JavaPlugin{
         Objects.requireNonNull(getCommand("hyperion")).setExecutor(new HyperionCommand());
         Objects.requireNonNull(getCommand("rreforge")).setExecutor(new ReforgeCommand());
         Objects.requireNonNull(getCommand("beamrod")).setExecutor(new BeamRod());
+        getCommand("givenull").setExecutor(new giveBarrier());
+        getCommand("fot").setExecutor(new FlowerOfTruthCommand());
+        getCommand("spiritsceptre").setExecutor(new SpiritSceptreCommand());
     }
 
     public void addPermission(UUID uuid, String permission) {

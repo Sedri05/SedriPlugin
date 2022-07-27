@@ -40,5 +40,11 @@ commands:
     description: rreforge
   beamrod:
     description: BEAMMMM
+  givenull:
+    description: gives a null barrier
+  fot:
+    description: fot
+  spiritsceptre:
+    description: spirit sceptre
 #  gay:
 #    description: "e a sports"
